@@ -1,0 +1,11 @@
+{
+    "css.validate": false,
+    "scs.validate": false,
+    "less.validate": false,
+    "editor.quickSuggestions": {
+        "other": true,
+        "comments": false,
+        "strings": true
+    },
+    "css.lint.unknownAtRules": "ignore"
+}

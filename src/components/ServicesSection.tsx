@@ -1,0 +1,599 @@
+// @ts-ignore
+import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { Zap, Building2, Image, ArrowRight } from 'lucide-react';
+import { CyberButton } from './GoldButton';
+import * as THREE from 'three';
+// @ts-ignore
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+// @ts-ignore
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Container from './Container';
+
+gsap.registerPlugin(ScrollTrigger);
+
+// --- DADOS ---
+const services = [
+    {
+        id: 'service-1',
+        icon: Zap,
+        titlePrefix: 'Landing Page de',
+        titleHighlight: 'Alta Conversão',
+        description: 'Página única focada em um objetivo: fazer seu visitante tomar ação. Design estratégico, copy persuasiva e velocidade máxima.',
+        features: ['Foco em CTA', 'Carregamento rápido', 'Copy estratégica'],
+        message: 'Olá! Tenho interesse em uma Landing Page de Alta Conversão.',
+        position: 'left',
+    },
+    {
+        id: 'service-2',
+        icon: Building2,
+        titlePrefix: 'Site Institucional',
+        titleHighlight: 'Premium',
+        description: 'Presença digital profissional para sua empresa. Múltiplas páginas, SEO básico e credibilidade garantida.',
+        features: ['Múltiplas páginas', 'SEO otimizado', 'Design profissional'],
+        message: 'Olá! Tenho interesse em um Site Institucional Premium.',
+        position: 'right',
+    },
+    {
+        id: 'service-3',
+        icon: Image,
+        titlePrefix: 'Portfólio /',
+        titleHighlight: 'Catálogo',
+        description: 'Mostre seus trabalhos ou produtos de forma visual e organizada. Ideal para profissionais criativos e pequenas empresas.',
+        features: ['Galeria visual', 'Organização por categorias', 'Design impactante'],
+        message: 'Olá! Tenho interesse em um Portfólio/Catálogo.',
+        position: 'left',
+    },
+];
+
+// --- COMPONENTES AUXILIARES ---
+
+function ListItem({ text }: { text: string }) {
+    return (
+        <div className="flex items-center gap-3 group/item justify-center lg:justify-start">
+            <div className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-yellow-500"></div>
+            <span className="text-zinc-300 text-[15px] font-medium group-hover/item:text-white transition-colors">
+                {text}
+            </span>
+        </div>
+    );
+};
+
+
+
+
+
+const ServiceCardMobile = ({
+    service,
+    index,
+}: {
+    service: typeof services[0];
+    index: number;
+}) => {
+    const handleWhatsAppClick = () => {
+        const phone = '5511999999999';
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(service.message || '')}`;
+        window.open(url, '_blank');
+    };
+
+    return (
+        <div className="w-full flex flex-col justify-center">
+            <Container>
+                <div className="relative w-full flex items-center justify-center h-full">
+                    <div className="relative w-full flex flex-col items-center">
+                        <div className="w-full relative rounded-[24px] p-[1px] bg-gradient-to-b from-yellow-500/40 via-yellow-500/5 to-transparent shadow-2xl shadow-black">
+                            <div className="relative bg-[#080808] rounded-[23px] p-6 overflow-hidden flex flex-col justify-center h-[550px] w-full">
+                                {/* Background Blur */}
+                                <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                                <div className="flex flex-col items-center gap-4 mb-6 relative z-10">
+                                    <div className="relative">
+                                        <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
+                                            <service.icon className="w-7 h-7 text-yellow-400 fill-yellow-400" />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 text-center">
+                                        <span className="inline-block text-[10px] font-bold tracking-[0.2em] uppercase text-yellow-500/80 mb-1">
+                                            Serviço {String(index + 1).padStart(2, '0')}
+                                        </span>
+                                        <h2 className="text-2xl font-black text-white leading-[1.1] tracking-tight">
+                                            {service.titlePrefix} <br />
+                                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-600">
+                                                {service.titleHighlight}
+                                            </span>
+                                        </h2>
+                                    </div>
+                                </div>
+
+                                <p className="text-zinc-400 text-xs leading-relaxed mb-6 relative z-10 text-center mx-auto max-w-[90%]">
+                                    {service.description}
+                                </p>
+
+                                <div className="space-y-2 mb-8 relative z-10 flex flex-col items-center w-full">
+                                    {service.features.map((feature, idx) => (
+                                        <ListItem key={idx} text={feature} />
+                                    ))}
+                                </div>
+
+                                <CyberButton
+                                    onClick={handleWhatsAppClick}
+                                    className="w-full group/btn flex items-center justify-center gap-2 mt-auto"
+                                >
+                                    Quero Esse
+                                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                                </CyberButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Container>
+        </div>
+    );
+};
+
+const ServiceCardDesktop = ({
+    service,
+    index,
+    setRef
+}: {
+    service: typeof services[0];
+    index: number;
+    setRef: (el: HTMLDivElement | null) => void;
+}) => {
+    const isLeft = service.position === 'left';
+
+    const handleWhatsAppClick = () => {
+        const phone = '5511999999999';
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(service.message || '')}`;
+        window.open(url, '_blank');
+    };
+
+    return (
+        <section
+            ref={setRef}
+            id={service.id}
+            className={`
+        min-h-screen flex flex-col justify-center relative z-10
+        py-16 pointer-events-none
+        lg:min-h-screen lg:py-16
+        w-full hidden lg:flex
+      `}
+        >
+            <Container>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+                    <motion.div
+                        initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: '-20%' }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className={`
+                            pointer-events-auto group relative w-full
+                            lg:col-span-5
+                            ${isLeft ? 'lg:col-start-1' : 'lg:col-start-8'}
+                        `}
+                    >
+                        <div className="relative rounded-[32px] p-[1px] bg-gradient-to-b from-yellow-500/40 via-yellow-500/5 to-transparent transition-all duration-500 group-hover:from-yellow-400 group-hover:via-yellow-500/20 group-hover:to-transparent shadow-2xl shadow-black">
+                            <div className="relative h-full bg-[#080808] rounded-[31px] p-10 overflow-hidden">
+                                <div className="absolute -top-40 -right-40 w-80 h-80 bg-yellow-500/5 rounded-full blur-3xl group-hover:bg-yellow-500/10 transition-all duration-500 pointer-events-none"></div>
+
+                                <div className="flex flex-col items-center lg:items-start gap-6 mb-8 relative z-10">
+                                    <div className="relative">
+                                        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-yellow-500/30 transition-colors duration-500">
+                                            <service.icon className="w-8 h-8 text-yellow-400 fill-yellow-400" />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 text-center lg:text-left">
+                                        <span className="inline-block text-[11px] font-bold tracking-[0.2em] uppercase text-yellow-500/80 mb-1">
+                                            Serviço {String(index + 1).padStart(2, '0')}
+                                        </span>
+                                        <h2 className="text-4xl font-black text-white leading-[1.1] tracking-tight">
+                                            {service.titlePrefix} <br />
+                                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-600">
+                                                {service.titleHighlight}
+                                            </span>
+                                        </h2>
+                                    </div>
+                                </div>
+
+                                <p className="text-zinc-400 text-base leading-relaxed mb-8 max-w-[95%] relative z-10 text-center lg:text-left mx-auto lg:mx-0">
+                                    {service.description}
+                                </p>
+
+                                <div className="space-y-4 mb-10 relative z-10 flex flex-col items-center lg:items-start">
+                                    {service.features.map((feature, idx) => (
+                                        <ListItem key={idx} text={feature} />
+                                    ))}
+                                </div>
+
+                                <CyberButton
+                                    onClick={handleWhatsAppClick}
+                                    className="w-full group/btn flex items-center justify-center gap-2"
+                                >
+                                    Quero Esse
+                                    <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                                </CyberButton>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            </Container>
+        </section>
+    );
+};
+
+// --- COMPONENTE PRINCIPAL ---
+const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const scrollWrapperRef = useRef<THREE.Group | null>(null);
+    const lanternModelRef = useRef<THREE.Group | null>(null);
+    const sceneRef = useRef<THREE.Scene | null>(null);
+    const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+    const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+
+    // TWO Separate Refs for split control
+    const cardsContainerMobileRef = useRef<HTMLDivElement>(null);
+    const mobileCardsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+    const cardsContainerDesktopRef = useRef<HTMLDivElement>(null);
+    const desktopCardsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+    const ctxRef = useRef<gsap.Context | null>(null);
+
+    // --- MOBILE ANIMATION EFFECT (Separate from 3D logic) ---
+    React.useLayoutEffect(() => {
+        const ctx = gsap.context(() => {
+            const mm = gsap.matchMedia();
+
+            mm.add("(max-width: 1023px)", () => {
+                if (!cardsContainerMobileRef.current) return;
+                const cards = mobileCardsRef.current.filter(Boolean);
+                if (cards.length === 0) return;
+
+                // Force initial state (this overwrites the inline styles smoothly)
+                cards.forEach((card, i) => {
+                    if (i === 0) {
+                        gsap.set(card, { xPercent: 0, autoAlpha: 1, zIndex: 1 });
+                    } else {
+                        gsap.set(card, { xPercent: 100, autoAlpha: 1, zIndex: i + 1 });
+                    }
+                });
+
+                ScrollTrigger.refresh(); // Ensure strict calculation
+
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: cardsContainerMobileRef.current,
+                        // pin: false, // CSS Sticky handles this
+                        scrub: 1,
+                        start: "top top",
+                        end: "bottom bottom",
+                        invalidateOnRefresh: true,
+                    }
+                });
+
+                cards.forEach((card, i) => {
+                    if (i === 0) return;
+
+                    // Current card enters from right
+                    tl.to(card, {
+                        xPercent: 0,
+                        duration: 1,
+                        ease: "power2.out"
+                    }, i - 0.5);
+                });
+            });
+        }, cardsContainerMobileRef);
+
+        return () => ctx.revert();
+    }, [services]);
+
+    useEffect(() => {
+        if (!canvasRef.current || !containerRef.current || !enable3D) return;
+
+        const scene = new THREE.Scene();
+        sceneRef.current = scene;
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        cameraRef.current = camera;
+
+        const renderer = new THREE.WebGLRenderer({
+            alpha: true,
+            antialias: true,
+            canvas: canvasRef.current,
+            powerPreference: "high-performance"
+        });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        rendererRef.current = renderer;
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 3.0);
+        dirLight.position.set(5, 10, 5);
+        scene.add(dirLight);
+
+        const fillLight = new THREE.DirectionalLight(0xffffff, 2.0);
+        fillLight.position.set(-5, 5, -5);
+        scene.add(fillLight);
+
+        const frontLight = new THREE.DirectionalLight(0xffffff, 2.5);
+        frontLight.position.set(0, 0, 10);
+        scene.add(frontLight);
+
+        const soulLight = new THREE.PointLight(0xC9A24D, 5.0, 20);
+        soulLight.position.set(0, 0, 0);
+        scene.add(soulLight);
+
+        const scrollWrapper = new THREE.Group();
+        scene.add(scrollWrapper);
+        scrollWrapperRef.current = scrollWrapper;
+
+        const loadModel = async () => {
+            const loader = new GLTFLoader();
+            const dracoLoader = new DRACOLoader();
+            dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+            loader.setDRACOLoader(dracoLoader);
+
+            try {
+                const gltf = await loader.loadAsync('/models/lantern-model.glb');
+                const lanternModel = gltf.scene;
+
+                if (lanternModelRef.current) {
+                    scrollWrapper.remove(lanternModelRef.current);
+                }
+
+                lanternModelRef.current = lanternModel;
+                scrollWrapper.add(lanternModel);
+                lanternModel.add(soulLight);
+
+                lanternModel.scale.set(2.5, 2.5, 2.5);
+
+                refreshAnimations();
+
+            } catch (error) {
+                console.warn('Modelo lantern-model.glb não encontrado. Usando cubo placeholder.', error);
+
+                const geometry = new THREE.BoxGeometry(1, 1.5, 1);
+                const material = new THREE.MeshStandardMaterial({ color: 0xD4AF37, metalness: 0.8, roughness: 0.2 });
+                const cube = new THREE.Mesh(geometry, material);
+
+                if (lanternModelRef.current) scrollWrapper.remove(lanternModelRef.current);
+                lanternModelRef.current = cube as any;
+                scrollWrapper.add(cube);
+                cube.add(soulLight);
+                refreshAnimations();
+            }
+        };
+
+        loadModel();
+
+        const refreshAnimations = () => {
+            const currentModel = lanternModelRef.current;
+            const currentWrapper = scrollWrapperRef.current;
+
+            if (ctxRef.current) {
+                ctxRef.current.revert();
+            }
+
+            ctxRef.current = gsap.context(() => {
+                const mm = gsap.matchMedia();
+
+                // --- MOBILE ANIMATION (Pinned Stack + Slide In) --- //
+                // Moved to separate useEffect for immediate execution.
+
+                // --- DESKTOP ANIMATION (3D + Scroll) ---
+
+
+                // --- DESKTOP ANIMATION (3D + Scroll) ---
+                mm.add("(min-width: 1024px)", () => {
+                    if (!currentModel || !currentWrapper) return;
+                    // Trigger off DESKTOP container
+                    if (!cardsContainerDesktopRef.current) return;
+
+                    const posX = {
+                        right: 3.5,
+                        left: -3.5
+                    };
+                    const baseY = -1.5;
+
+                    const idleTl = gsap.timeline({ repeat: -1, yoyo: true });
+                    idleTl.to(currentModel.position, {
+                        y: 0.15,
+                        duration: 2.5,
+                        ease: "sine.inOut"
+                    });
+
+                    const baseScale = 2.2;
+                    const maxScale = 3.0;
+                    const finalScale = 2.6;
+
+                    currentWrapper.position.set(posX.right, baseY, 0);
+                    currentWrapper.rotation.set(0, Math.PI * 2, 0.2);
+                    currentModel.scale.set(baseScale, baseScale, baseScale);
+                    currentWrapper.visible = true;
+
+                    const tl = gsap.timeline({
+                        scrollTrigger: {
+                            trigger: cardsContainerDesktopRef.current,
+                            start: "top top",
+                            end: "bottom bottom",
+                            scrub: true,
+                            invalidateOnRefresh: true,
+                        }
+                    });
+
+                    const dipY = baseY - 1.0;
+
+                    tl.to({}, { duration: 0.1 });
+
+                    tl.to(currentWrapper.position, {
+                        x: posX.left,
+                        ease: "power1.inOut",
+                        duration: 0.8
+                    }, "move1")
+                        .to(currentWrapper.position, {
+                            y: dipY,
+                            ease: "sine.inOut",
+                            yoyo: true,
+                            repeat: 1,
+                            duration: 0.4
+                        }, "move1")
+                        .to(currentModel.scale, {
+                            x: maxScale, y: maxScale, z: maxScale,
+                            ease: "power1.inOut",
+                            duration: 0.8
+                        }, "move1")
+                        .to(currentWrapper.rotation, {
+                            y: Math.PI * 1.5, x: 0.2,
+                            ease: "power1.inOut",
+                            duration: 0.8
+                        }, "move1");
+
+                    tl.to({}, { duration: 0.3 });
+
+                    tl.to(currentWrapper.position, {
+                        x: posX.right,
+                        ease: "power1.inOut",
+                        duration: 0.9
+                    }, "move2")
+                        .to(currentWrapper.position, {
+                            y: dipY,
+                            ease: "sine.inOut",
+                            yoyo: true,
+                            repeat: 1,
+                            duration: 0.45
+                        }, "move2")
+                        .to(currentWrapper.rotation, {
+                            y: Math.PI * 2, x: 0.1,
+                            ease: "power1.inOut",
+                            duration: 0.9
+                        }, "move2")
+                        .to(currentModel.scale, {
+                            x: finalScale, y: finalScale, z: finalScale,
+                            ease: "power1.in",
+                            duration: 0.9
+                        }, "move2");
+
+                    tl.to({}, { duration: 0.6 });
+                });
+
+            }, containerRef);
+        };
+
+        const animate = () => {
+            if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+
+            const t = Date.now() * 0.002;
+            soulLight.intensity = 2.5 + Math.sin(t) * 0.5;
+            soulLight.distance = 15 + Math.sin(t * 1.5) * 3;
+
+            rendererRef.current.render(sceneRef.current, cameraRef.current);
+        };
+
+        gsap.ticker.add(animate);
+        gsap.ticker.lagSmoothing(0);
+
+        const handleResize = () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+            refreshAnimations();
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            gsap.ticker.remove(animate);
+            if (ctxRef.current) ctxRef.current.revert();
+            renderer.dispose();
+        };
+    }, [enable3D]);
+
+    return (
+        <div ref={containerRef} id="servicos" className="relative w-full bg-[#050505]">
+            <section className="min-h-[40vh] flex flex-col justify-center pt-32 pb-0 relative z-10">
+                <Container>
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6 }}
+                        className="max-w-2xl text-center lg:text-left mx-auto lg:mx-0"
+                    >
+                        <span className="text-yellow-500 text-sm font-medium tracking-wider uppercase mb-4 block">
+                            Serviços Premium
+                        </span>
+                        <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                            O que eu <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">crio para você</span>
+                        </h1>
+                        <p className="text-white/60 text-lg max-w-lg leading-relaxed mx-auto lg:mx-0">
+                            Três tipos de projeto. Uma obsessão: qualidade absoluta e conversão.
+                            Sua presença digital nunca mais será a mesma.
+                        </p>
+                    </motion.div>
+                </Container>
+            </section>
+
+            <div className="relative w-full">
+                <div className="hidden lg:block sticky top-0 w-full h-screen pointer-events-none z-0">
+                    <canvas ref={canvasRef} className="w-full h-full block" />
+                </div>
+
+                {/* MOBILE LIST (Visible up to lg) - PINNED STACK ANIMATION */}
+                {/* MOBILE LIST (Visible up to lg) - CSS STICKY + SCROLL ANIMATION */}
+                <div
+                    ref={cardsContainerMobileRef}
+                    className="relative z-10 w-full lg:hidden h-[400vh]"
+                >
+                    <div className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden bg-[#050505]">
+                        {services.map((service, index) => (
+                            <div
+                                key={`mobile-wrapper-${service.id}`}
+                                ref={(el) => mobileCardsRef.current[index] = el}
+                                className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
+                            >
+                                <div className="w-full h-full flex items-center justify-center pointer-events-auto px-4">
+                                    <ServiceCardMobile
+                                        key={`mobile-${service.id}`}
+                                        service={service}
+                                        index={index}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* DESKTOP LIST (Hidden on mobile) */}
+                <div ref={cardsContainerDesktopRef} className="relative z-10 w-full pointer-events-auto hidden lg:block lg:-mt-[100vh]">
+                    {services.map((service, index) => (
+                        <ServiceCardDesktop
+                            key={`desktop-${service.id}`}
+                            service={service}
+                            index={index}
+                            setRef={(el) => desktopCardsRef.current[index] = el}
+                        />
+                    ))}
+                    <div className="h-[20vh]" />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ServicesSection;

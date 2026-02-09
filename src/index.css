@@ -1,0 +1,523 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gold-light: #FFE5A0;
+    --gold-mid: #D4AF37;
+    --gold-dark: #8A6E28;
+    --bg-dark: #050505;
+  }
+
+  html {
+    @apply bg-black;
+  }
+
+  body {
+    @apply bg-black text-white antialiased font-sans;
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+@layer utilities {
+
+  /* --- PRIMÁRIO: Gold Ingot --- */
+  .btn-primary-gold {
+    background: linear-gradient(180deg,
+        #f0d685 0%,
+        #d4af37 30%,
+        #a67c00 60%,
+        #d4af37 100%);
+    clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.15);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease;
+    transform: translateZ(0);
+  }
+
+  /* Reflexo "Glassy" Superior */
+  .btn-primary-gold::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Feixe de Luz (Shimmer) */
+  .btn-primary-gold::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: 120%;
+    bottom: -50%;
+    width: 60px;
+    background: linear-gradient(to right,
+        transparent,
+        rgba(255, 255, 255, 0.8),
+        transparent);
+    transform: skewX(-25deg);
+    z-index: 2;
+    pointer-events: none;
+    animation: shimmer 5s infinite ease-in-out;
+  }
+
+  .inner-glow {
+    box-shadow: inset 0 0 0 2px rgba(255, 215, 0, 0.3), inset 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Hover Effects Gold */
+  .btn-primary-gold:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(212, 175, 55, 0.5);
+    color: #000;
+  }
+
+  .btn-primary-gold:hover::after {
+    animation: shimmer-fast 0.7s infinite linear;
+    opacity: 1;
+  }
+
+  /* --- SECUNDÁRIO: Cyber Frame --- */
+  .btn-secondary-cyber {
+    color: var(--gold-mid);
+    background: transparent;
+    transition: 0.3s;
+    cursor: pointer;
+  }
+
+  .btn-secondary-cyber::before,
+  .btn-secondary-cyber::after {
+    content: '';
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    transition: all 0.4s ease;
+    border: 2px solid var(--gold-dark);
+  }
+
+  .btn-secondary-cyber::before {
+    top: 0;
+    left: 0;
+    border-right: none;
+    border-bottom: none;
+  }
+
+  .btn-secondary-cyber::after {
+    bottom: 0;
+    right: 0;
+    border-left: none;
+    border-top: none;
+  }
+
+  /* Hover Effects Cyber */
+  .btn-secondary-cyber:hover::before,
+  .btn-secondary-cyber:hover::after {
+    width: 100%;
+    height: 100%;
+    border-color: var(--gold-light);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+  }
+
+  .btn-secondary-cyber:hover {
+    color: var(--gold-light);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+  }
+
+  /* --- Keyframes --- */
+  @keyframes shimmer {
+    0% {
+      right: 120%;
+      opacity: 0;
+    }
+
+    5% {
+      opacity: 0.8;
+    }
+
+    20% {
+      right: -50%;
+      opacity: 0;
+    }
+
+    100% {
+      right: -50%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes shimmer-fast {
+    0% {
+      right: 120%;
+      opacity: 0;
+    }
+
+    15% {
+      opacity: 1;
+    }
+
+    100% {
+      right: -50%;
+      opacity: 0;
+    }
+  }
+
+  .text-gold {
+    @apply text-yellow-400;
+  }
+}
+
+/* --- REMOÇÃO TOTAL DA SCROLLBAR NATIVA (Para usar com Lenis) --- */
+
+html {
+  overflow: auto;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none !important;
+  width: 0px !important;
+  height: 0px !important;
+  background: transparent !important;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+html,
+body,
+#root {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* Utility to hide scrollbar on specific elements */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ================= PRELOADER & ZOOM STYLES (FROM USER) ================= */
+
+/* RESET & BASE */
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #050505;
+  position: relative;
+  color: white;
+}
+
+/* Scroll Lock during load */
+body.loading-locked {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
+body {
+  width: 100%;
+}
+
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #050505;
+  position: relative;
+  color: white;
+}
+
+.loader-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #050505;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  /* Estado Inicial */
+  transform: translateY(0);
+  border-radius: 0;
+
+  /* A MÁGICA DA CURVA "LUA" / GOTA */
+  transition:
+    transform 2.5s cubic-bezier(0.77, 0, 0.175, 1),
+    border-radius 2.0s cubic-bezier(0.55, 0.055, 0.675, 0.19) 0.2s;
+
+  will-change: transform, border-radius;
+}
+
+.loaded .loader-wrapper {
+  /* Desce a cortina */
+  transform: translateY(105%);
+
+  /* Cria a "barriga" líquida na parte inferior */
+  border-bottom-left-radius: 50% 20%;
+  border-bottom-right-radius: 50% 20%;
+
+  pointer-events: none;
+}
+
+/* ================= CARTA ÚNICA SVG ================= */
+.ace-card-svg {
+  width: 220px;
+  height: 340px;
+  overflow: visible;
+  filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.1));
+
+  /* Sincronia: A carta desce junto com a cortina */
+  transition: transform 2.5s cubic-bezier(0.77, 0, 0.175, 1), opacity 1.0s ease 0.5s;
+}
+
+.loaded .ace-card-svg {
+  /* Desce mais que a tela para sumir */
+  transform: translateY(60vh) rotate(-5deg);
+  opacity: 0;
+}
+
+/* Estilos de Desenho (Outline) */
+.draw-path {
+  fill: transparent;
+  stroke: #d4af37;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+}
+
+/* Animações da Carta */
+.card-border {
+  animation: draw-line 2.5s cubic-bezier(0.45, 0, 0.55, 1) forwards, fill-card-bg 1s ease 2.2s forwards;
+}
+
+.card-heart-big {
+  stroke-width: 3;
+  animation: draw-line 2.5s cubic-bezier(0.45, 0, 0.55, 1) 0.3s forwards, fill-heart-neon 0.8s ease 2.5s forwards;
+}
+
+.card-corner text,
+.card-corner path {
+  opacity: 0;
+  fill: #d4af37;
+  animation: fade-in-neon 1s ease 2.8s forwards;
+}
+
+/* Keyframes */
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fill-card-bg {
+  to {
+    fill: #111;
+    stroke: #d4af37;
+    filter: drop-shadow(0 0 5px #d4af37) drop-shadow(0 0 15px rgba(212, 175, 55, 0.3));
+  }
+}
+
+@keyframes fill-heart-neon {
+  to {
+    fill: #fffbe6;
+    stroke: #d4af37;
+    filter:
+      drop-shadow(0 0 2px #d4af37) drop-shadow(0 0 10px #d4af37) drop-shadow(0 0 20px rgba(212, 175, 55, 0.6));
+  }
+}
+
+@keyframes fade-in-neon {
+  to {
+    opacity: 1;
+    fill: #fffbe6;
+    filter: drop-shadow(0 0 5px #d4af37);
+  }
+}
+
+/* Texto Loading */
+.loading-text {
+  margin-top: 50px;
+  color: #888;
+  letter-spacing: 8px;
+  font-size: 0.7rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  animation: pulse 2s infinite;
+  transition: transform 2.5s cubic-bezier(0.77, 0, 0.175, 1), opacity 0.5s ease;
+}
+
+.loaded .loading-text {
+  transform: translateY(60vh);
+  opacity: 0;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* ================= BACKGROUND & HERO ZOOM (O EFEITO) ================= */
+#main-content {
+  position: relative;
+  width: 100%;
+  /* Altering to min-height to support full page content */
+  min-height: 100vh;
+  background-color: #050505;
+
+  /* Imagem de Fundo (Keeping user's request, but typically this is in Hero) */
+  /* The user wants this dramatic entrance so we keep it. */
+  background-image:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)),
+    url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?q=80&w=2073&auto=format&fit=crop');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* ESTADO INICIAL (MEGA ZOOM 4.0x) */
+  transform: scale(4.0);
+  filter: brightness(0.2);
+  /* Pivot top center for zoom */
+  transform-origin: center top;
+
+  /* Transição de revelação */
+  transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), filter 2.5s ease-out;
+  will-change: transform, filter;
+}
+
+.loaded #main-content {
+  transform: scale(1);
+  filter: brightness(1);
+}
+
+/* FIX: Remove transform after animation to allow 3D sticky scroll to work */
+.effects-cleared #main-content {
+  transform: none !important;
+  filter: none !important;
+  will-change: auto;
+}
+
+/* ================= SCANNER TEXT EFFECT (USER REQUEST) ================= */
+.scan-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 5px;
+  /* Ajuste fino */
+}
+
+/* O Texto (Escondido inicialmente) */
+.scan-content {
+  display: block;
+  opacity: 0;
+  /* Cortado da direita para a esquerda */
+  clip-path: inset(0 100% 0 0);
+  transition: opacity 0.1s;
+}
+
+/* A Linha Dourada (Scanner) */
+.scan-line {
+  position: absolute;
+  top: -10%;
+  height: 120%;
+  width: 4px;
+  background: #d4af37;
+  /* Glow Dourado Puro */
+  box-shadow:
+    0 0 10px #d4af37,
+    0 0 20px rgba(212, 175, 55, 0.6),
+    0 0 40px rgba(212, 175, 55, 0.4);
+  opacity: 0;
+  z-index: 15;
+  pointer-events: none;
+  left: 0;
+  border-radius: 4px;
+}
+
+/* ANIMAÇÃO DO TEXTO - Dispara quando a classe .loaded é adicionada ao body/app */
+.loaded .scan-content {
+  opacity: 1;
+  animation: reveal-text 2.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ANIMAÇÃO DA LINHA */
+.loaded .scan-line {
+  opacity: 1;
+  animation: scan-move 2.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes reveal-text {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes scan-move {
+  0% {
+    left: -2%;
+    opacity: 0;
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    left: 102%;
+    opacity: 0;
+  }
+}
+
+/* Delay sincronizado: Começa 1.5s depois do zoom iniciar (que dura 2.5s) */
+/* Isso faz o texto ir aparecendo ENQUANTO o zoom sai */
+.loaded .delay-sync-1 {
+  animation-delay: 1.5s;
+}
+
+.loaded .delay-sync-2 {
+  animation-delay: 1.7s;
+}
+
+.loaded .delay-sync-3 {
+  animation-delay: 1.9s;
+}
+
+/* Limpeza final */
+.effects-cleared .scan-line {
+  display: none !important;
+}
+
+.effects-cleared .scan-content {
+  clip-path: none !important;
+  opacity: 1 !important;
+  animation: none !important;
+  transform: none !important;
+}
