@@ -18,7 +18,6 @@ const useVideoSource = () => {
     }, []);
 
     return {
-        mp4: `/videos/${base}.mp4`,
         webm: `/videos/${base}.webm`,
         key: base,
     };
@@ -145,8 +144,6 @@ const HeroSection = () => {
                     className="w-full h-full object-cover object-center lg:object-right scale-[1.4] -translate-y-[15%] lg:scale-100 lg:translate-y-0"
                     style={{ pointerEvents: 'none' }}
                 >
-                    {/* MP4 first — iOS Safari does NOT support WebM */}
-                    <source src={videoSource.mp4} type="video/mp4" />
                     <source src={videoSource.webm} type="video/webm" />
                     Seu navegador não suporta vídeo.
                 </video>
