@@ -382,34 +382,28 @@ body {
 #main-content {
   position: relative;
   width: 100%;
-  /* Altering to min-height to support full page content */
   min-height: 100vh;
   background-color: #050505;
 
-  /* Imagem de Fundo (Keeping user's request, but typically this is in Hero) */
-  /* The user wants this dramatic entrance so we keep it. */
-  background-image:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)),
-    url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?q=80&w=2073&auto=format&fit=crop');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  /* ESTADO INICIAL — Responsivo por device */
-  transform: scale(2.0);
+  /* ESTADO INICIAL — Mobile: lighter zoom, no bg image (hero video covers it) */
+  transform: scale(1.5);
   filter: brightness(0.2);
-  /* Pivot top center for zoom */
   transform-origin: center top;
 
-  /* Transição de revelação */
   transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), filter 2.5s ease-out;
   will-change: transform, filter;
 }
 
-/* Tablet: zoom moderado */
+/* Tablet: zoom moderado + bg image */
 @media (min-width: 768px) {
   #main-content {
     transform: scale(3.0);
+    background-image:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)),
+      url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?q=80&w=2073&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
   }
 }
 
@@ -430,6 +424,7 @@ body {
   transform: none !important;
   filter: none !important;
   will-change: auto;
+  transition: none;
 }
 
 /* ================= SCANNER TEXT EFFECT (USER REQUEST) ================= */

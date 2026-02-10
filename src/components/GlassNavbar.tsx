@@ -55,13 +55,35 @@ const GlassNavbar: React.FC<{ isLoaded: boolean }> = ({ isLoaded }) => {
         }
     };
 
-    // Scroll Spy Logic usando useLenis — throttled to 100ms for mobile perf
+    // Scroll Spy Logic — uses Lenis callback on desktop, native scroll listener on mobile
     const lastCalcRef = useRef<number>(0);
+
+    // Desktop: Lenis callback (this is a no-op when Lenis is not mounted)
     useLenis(() => {
         const now = Date.now();
         if (now - lastCalcRef.current < 100) return;
         lastCalcRef.current = now;
         calculateActiveSection();
+    }, []);
+
+    // Mobile fallback: native scroll listener (when Lenis is disabled)
+    useEffect(() => {
+        const isMobile = window.innerWidth < 1024;
+        if (!isMobile) return;
+
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(() => {
+                    calculateActiveSection();
+                    ticking = false;
+                });
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     // Executa verificação inicial ao montar e recarrega cache no resize
@@ -72,9 +94,6 @@ const GlassNavbar: React.FC<{ isLoaded: boolean }> = ({ isLoaded }) => {
         calculateActiveSection();
 
         const handleResize = () => {
-            // Limpa cache para forçar recálculo de posições se necessário (embora elementos sejam os mesmos)
-            // Na verdade, elementos não mudam, mas layout sim. getBoundingClientRect cuida disso.
-            // Manter referências é seguro.
             calculateActiveSection();
         };
 

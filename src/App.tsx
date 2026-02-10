@@ -16,14 +16,47 @@ const FAQSection = lazy(() => import('./components/FAQSection'));
 const FooterSection = lazy(() => import('./components/FooterSection'));
 const FinalCTASection = lazy(() => import('./components/FinalCTASection'));
 
-function App() {
-    const [isLoaded, setIsLoaded] = useState<boolean>(false);
-    const [animationsDone, setAnimationsDone] = useState<boolean>(false);
+// Detect mobile/tablet — Lenis smooth scroll is DISABLED on these devices
+// because native scroll runs off the main thread (compositor) and is hardware-accelerated.
+// Lenis forces scroll back onto the main thread, causing jank on mobile.
+const isMobileOrTablet = () => typeof window !== 'undefined' && window.innerWidth < 1024;
 
-    // Sincronização Lenis -> GSAP ScrollTrigger
+// Wrapper: on desktop renders ReactLenis, on mobile renders plain children with native scroll
+const ScrollWrapper = ({ children }: { children: React.ReactNode }) => {
+    const [mobile, setMobile] = useState(isMobileOrTablet);
+
+    useEffect(() => {
+        const onResize = () => setMobile(isMobileOrTablet());
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+
+    if (mobile) {
+        // Native scroll — no Lenis overhead
+        return <>{children}</>;
+    }
+
+    return <ReactLenis root>{children}</ReactLenis>;
+};
+
+// Only sync Lenis → ScrollTrigger on desktop (on mobile this hook is a no-op because Lenis isn't mounted)
+const LenisScrollSync = () => {
     useLenis(() => {
         ScrollTrigger.update();
     });
+    return null;
+};
+
+function App() {
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
+    const [animationsDone, setAnimationsDone] = useState<boolean>(false);
+    const [isMobile, setIsMobile] = useState(isMobileOrTablet);
+
+    useEffect(() => {
+        const onResize = () => setIsMobile(isMobileOrTablet());
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
 
     useEffect(() => {
         // Travar scroll durante o loading
@@ -42,13 +75,11 @@ function App() {
         const cleanupTimer = setTimeout(() => {
             if (isLoaded) {
                 setAnimationsDone(true);
-                // Refresh ScrollTrigger after removing transform to ensure sticky positioning is recalculated
-                // Aumentei um pouco o delay para garantir que o layout esteja estável (pós-transição de opacidade)
                 setTimeout(() => {
                     ScrollTrigger.refresh();
                 }, 100);
             }
-        }, 5000); // 2.5s (Zoom) + 1.9s (Delay) + 0.9s (Buffer)
+        }, 5000);
 
         return () => {
             clearTimeout(loadTimer);
@@ -57,17 +88,19 @@ function App() {
         };
     }, [isLoaded]);
 
-    console.log("App render. isLoaded:", isLoaded);
-
     return (
         <div className={`app-container ${isLoaded ? 'loaded' : ''} ${animationsDone ? 'effects-cleared' : ''}`}>
             <Preloader />
             <div id="canvas-portal-root" className="fixed inset-0 pointer-events-none z-[1]" />
 
-            <ReactLenis root>
-                <div className={`transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-                    <CustomScrollbar />
-                </div>
+            <ScrollWrapper>
+                <LenisScrollSync />
+                {/* Custom scrollbar only on desktop — mobile uses native */}
+                {!isMobile && (
+                    <div className={`transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+                        <CustomScrollbar />
+                    </div>
+                )}
                 <GlassNavbar isLoaded={isLoaded} />
                 <div id="main-content" className="relative bg-black min-h-screen text-white font-sans">
                     <HeroSection />
@@ -82,7 +115,7 @@ function App() {
                         <FooterSection />
                     </Suspense>
                 </div>
-            </ReactLenis>
+            </ScrollWrapper>
         </div>
     );
 }

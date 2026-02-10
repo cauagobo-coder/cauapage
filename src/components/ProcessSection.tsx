@@ -265,12 +265,23 @@ const ProcessSection: React.FC = () => {
         setTimeout(updateDimensions, 500);
 
         window.addEventListener('resize', updateDimensions);
-        // Também atualizar no scroll para garantir posições absolutas corretas (caso layout mude dinamicamente)
-        window.addEventListener('scroll', updatePosition);
+
+        // Throttled scroll position update via rAF (instead of raw scroll listener)
+        let ticking = false;
+        const handleScroll = () => {
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(() => {
+                    updatePosition();
+                    ticking = false;
+                });
+            }
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
 
         return () => {
             window.removeEventListener('resize', updateDimensions);
-            window.removeEventListener('scroll', updatePosition);
+            window.removeEventListener('scroll', handleScroll);
         };
     }, []); // Dependências vazias, pois usamos apenas window e refs
 
