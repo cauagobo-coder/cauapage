@@ -3,14 +3,14 @@ import GoldButton, { CyberButton } from './GoldButton';
 import Container from './Container';
 
 const useVideoSource = () => {
-    const [source, setSource] = useState('/videos/hero-desktop.mp4');
+    const [source, setSource] = useState('/videos/hero-desktop.webm');
 
     useEffect(() => {
         const update = () => {
             const w = window.innerWidth;
-            if (w < 768) setSource('/videos/hero-mobile.mp4');
-            else if (w < 1024) setSource('/videos/hero-tablet.mp4');
-            else setSource('/videos/hero-desktop.mp4');
+            if (w < 768) setSource('/videos/hero-mobile.webm');
+            else if (w < 1024) setSource('/videos/hero-tablet.webm');
+            else setSource('/videos/hero-desktop.webm');
         };
         update();
         window.addEventListener('resize', update);
@@ -58,7 +58,7 @@ const HeroSection = () => {
                     playsInline
                     className="w-full h-full object-cover object-center lg:object-right"
                 >
-                    <source src={videoSrc} type="video/mp4" />
+                    <source src={videoSrc} type="video/webm" />
                     Seu navegador não suporta vídeo.
                 </video>
             </div>

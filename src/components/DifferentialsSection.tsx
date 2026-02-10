@@ -1,3 +1,4 @@
+import { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Palette, Smartphone, Zap, Search, MessageCircle, Rocket, Shield, Globe } from 'lucide-react';
 
@@ -36,16 +37,33 @@ const Pill = ({ icon: Icon, label }: { icon: React.ElementType; label: string })
 );
 
 // --- Marquee Row ---
+// Pauses CSS animation when off-screen to free GPU compositor on mobile
 const MarqueeRow = ({ items, reverse = false, duration = 20 }: { items: typeof differentials; reverse?: boolean; duration?: number }) => {
+    const rowRef = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const el = rowRef.current;
+        if (!el) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => setIsVisible(entry.isIntersecting),
+            { rootMargin: '100px' }
+        );
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
+
     // Duplicate items enough times for seamless loop
     const repeated = [...items, ...items, ...items, ...items];
 
     return (
-        <div className="relative overflow-hidden w-full">
+        <div ref={rowRef} className="relative overflow-hidden w-full">
             <div
                 className="flex gap-4 w-max"
                 style={{
                     animation: `${reverse ? 'marquee-reverse' : 'marquee'} ${duration}s linear infinite`,
+                    animationPlayState: isVisible ? 'running' : 'paused',
                 }}
             >
                 {repeated.map((item, index) => (

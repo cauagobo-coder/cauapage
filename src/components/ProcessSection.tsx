@@ -264,9 +264,16 @@ const ProcessSection: React.FC = () => {
         setTimeout(updateDimensions, 100);
         setTimeout(updateDimensions, 500);
 
-        window.addEventListener('resize', updateDimensions);
+        // Debounced resize — batches rapid resize events (e.g. orientation change)
+        let resizeTimer: ReturnType<typeof setTimeout>;
+        const debouncedResize = () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(updateDimensions, 200);
+        };
+        window.addEventListener('resize', debouncedResize);
 
-        // Throttled scroll position update via rAF (instead of raw scroll listener)
+        // Scroll listener: re-measures position because lazy content above
+        // can shift elementTop as it loads and expands
         let ticking = false;
         const handleScroll = () => {
             if (!ticking) {
@@ -280,8 +287,9 @@ const ProcessSection: React.FC = () => {
         window.addEventListener('scroll', handleScroll, { passive: true });
 
         return () => {
-            window.removeEventListener('resize', updateDimensions);
+            window.removeEventListener('resize', debouncedResize);
             window.removeEventListener('scroll', handleScroll);
+            clearTimeout(resizeTimer);
         };
     }, []); // Dependências vazias, pois usamos apenas window e refs
 

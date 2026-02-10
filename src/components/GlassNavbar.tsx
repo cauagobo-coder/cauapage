@@ -93,12 +93,22 @@ const GlassNavbar: React.FC<{ isLoaded: boolean }> = ({ isLoaded }) => {
 
         calculateActiveSection();
 
+        // Debounced resize — batches rapid resize events
+        let resizeTimer: ReturnType<typeof setTimeout>;
         const handleResize = () => {
-            calculateActiveSection();
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                // Recache sections (layout may have changed)
+                sectionsRef.current = navItems.map(item => document.querySelector(item.url) as HTMLElement | null);
+                calculateActiveSection();
+            }, 200);
         };
 
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            clearTimeout(resizeTimer);
+        };
     }, [isLoaded]); // Dependência de isLoaded ajuda a recalcular se o layout mudar pós-load
 
     const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, url: string, name: string) => {

@@ -209,15 +209,6 @@ body,
 
 /* ================= PRELOADER & ZOOM STYLES (FROM USER) ================= */
 
-/* RESET & BASE */
-.app-container {
-  width: 100%;
-  min-height: 100vh;
-  background-color: #050505;
-  position: relative;
-  color: white;
-}
-
 /* Scroll Lock during load */
 body.loading-locked {
   overflow: hidden !important;
@@ -550,5 +541,15 @@ body {
   /* Reduce complex drop-shadows on mobile for smoother compositing */
   .shadow-2xl {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  /* Skip rendering of off-screen sections until they approach viewport.
+     Browser skips layout+paint for invisible sections → faster initial render.
+     NOTE: #processo and #servicos are excluded — they use scroll-driven
+     animations that depend on exact element heights. */
+  #sobre,
+  #projetos {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 100vh;
   }
 }
