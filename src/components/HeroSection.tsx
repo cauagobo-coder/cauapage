@@ -119,7 +119,7 @@ const HeroSection = () => {
     }, [videoSource.key, forcePlay]);
 
     return (
-        <section ref={sectionRef} id="hero" className="min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
+        <section ref={sectionRef} id="hero" className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
             {/* Video Background */}
             <div className="absolute inset-0 w-full h-full z-0">
                 <video
@@ -131,7 +131,7 @@ const HeroSection = () => {
                     playsInline
                     disablePictureInPicture
                     preload="auto"
-                    className="w-full h-full object-cover object-top lg:object-center lg:object-right"
+                    className="w-full h-full object-cover object-[center_40%] lg:object-center lg:object-right"
                     style={{ pointerEvents: 'none' }}
                 >
                     {/* MP4 first — iOS Safari does NOT support WebM */}
