@@ -43,16 +43,33 @@ const HeroSection = () => {
         }
     }, []);
 
-    // Seamless loop: rewind before the last frame to avoid black flash
-    const handleTimeUpdate = useCallback(() => {
+    // Seamless loop via requestAnimationFrame (mobile timeupdate is too slow ~250ms)
+    useEffect(() => {
         const video = videoRef.current;
-        if (!video || !video.duration) return;
-        // Rewind 0.3s before end to avoid the black frame on loop
-        if (video.currentTime >= video.duration - 0.3) {
+        if (!video) return;
+        let rafId: number;
+
+        const checkLoop = () => {
+            if (video.duration && video.currentTime >= video.duration - 0.8) {
+                video.currentTime = 0;
+                video.play().catch(() => { });
+            }
+            rafId = requestAnimationFrame(checkLoop);
+        };
+
+        // Fallback: if video somehow reaches the end, restart immediately
+        const onEnded = () => {
             video.currentTime = 0;
-            forcePlay();
-        }
-    }, [forcePlay]);
+            video.play().catch(() => { });
+        };
+        video.addEventListener('ended', onEnded);
+        rafId = requestAnimationFrame(checkLoop);
+
+        return () => {
+            cancelAnimationFrame(rafId);
+            video.removeEventListener('ended', onEnded);
+        };
+    }, [videoSource.key]);
 
     // Main effect: mount + visibility observer + user interaction fallback
     useEffect(() => {
@@ -122,9 +139,6 @@ const HeroSection = () => {
         };
         document.addEventListener('visibilitychange', onVisibilityChange);
 
-        // Seamless loop handler (replaces native loop to avoid black flash)
-        video.addEventListener('timeupdate', handleTimeUpdate);
-
         // Also retry when video data is loaded (canplay event)
         const onCanPlay = () => forcePlay();
         video.addEventListener('canplay', onCanPlay);
@@ -137,11 +151,10 @@ const HeroSection = () => {
             document.removeEventListener('click', onUserInteract);
             document.removeEventListener('scroll', onUserInteract);
             document.removeEventListener('visibilitychange', onVisibilityChange);
-            video.removeEventListener('timeupdate', handleTimeUpdate);
             video.removeEventListener('canplay', onCanPlay);
             observer?.disconnect();
         };
-    }, [videoSource.key, forcePlay, handleTimeUpdate]);
+    }, [videoSource.key, forcePlay]);
 
     return (
         <section ref={sectionRef} id="hero" className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
