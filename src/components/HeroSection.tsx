@@ -84,7 +84,7 @@ const HeroSection = () => {
         document.addEventListener('click', onUserInteract, { once: true });
         document.addEventListener('scroll', onUserInteract, { passive: true, once: true });
 
-        // Visibility observer: pause when off-screen, play when visible
+        // Visibility observer: resume play when visible (no pausing — avoids black screen on restore)
         const section = sectionRef.current;
         let observer: IntersectionObserver | null = null;
         if (section) {
@@ -93,9 +93,10 @@ const HeroSection = () => {
                     if (!videoRef.current) return;
                     if (entry.isIntersecting) {
                         forcePlay();
-                    } else {
-                        videoRef.current.pause();
                     }
+                    // NOTE: We do NOT pause when off-screen.
+                    // Pausing causes black screen when restoring/minimizing the page
+                    // because the browser frees the video buffer.
                 },
                 { rootMargin: '200px', threshold: 0 }
             );
