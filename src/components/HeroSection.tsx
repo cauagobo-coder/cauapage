@@ -43,33 +43,6 @@ const HeroSection = () => {
         }
     }, []);
 
-    // Seamless loop via requestAnimationFrame (mobile timeupdate is too slow ~250ms)
-    useEffect(() => {
-        const video = videoRef.current;
-        if (!video) return;
-        let rafId: number;
-
-        const checkLoop = () => {
-            if (video.duration && video.currentTime >= video.duration - 0.8) {
-                video.currentTime = 0;
-                video.play().catch(() => { });
-            }
-            rafId = requestAnimationFrame(checkLoop);
-        };
-
-        // Fallback: if video somehow reaches the end, restart immediately
-        const onEnded = () => {
-            video.currentTime = 0;
-            video.play().catch(() => { });
-        };
-        video.addEventListener('ended', onEnded);
-        rafId = requestAnimationFrame(checkLoop);
-
-        return () => {
-            cancelAnimationFrame(rafId);
-            video.removeEventListener('ended', onEnded);
-        };
-    }, [videoSource.key]);
 
     // Main effect: mount + visibility observer + user interaction fallback
     useEffect(() => {
@@ -164,6 +137,7 @@ const HeroSection = () => {
                     ref={videoRef}
                     key={videoSource.key}
                     autoPlay
+                    loop
                     muted
                     playsInline
                     disablePictureInPicture
