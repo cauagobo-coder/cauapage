@@ -10,6 +10,7 @@ import {
     Sparkles
 } from 'lucide-react';
 import { GoldButton } from './GoldButton';
+import Container from './Container';
 
 // --- Interfaces ---
 interface StepProps {
@@ -43,20 +44,18 @@ const steps: StepProps[] = [
     { id: 5, year: "Fase 05", title: "Entrega Final", description: "Seu site no ar, rápido e pronto para vender.", icon: CheckCircle2 },
 ];
 
-// --- Constantes de Dimensão ---
+// --- Constantes de Dimensão (Desktop) ---
 const CARD_WIDTH = 450;
 const GAP_WIDTH = 300;
 const FINAL_CTA_WIDTH = 600;
 
-import Container from './Container';
-
-// --- Componente: Header (Container Separado) ---
-const Header = () => {
+// --- Componente: Header ---
+const Header = ({ compact = false }: { compact?: boolean }) => {
     return (
-        <section className="relative h-[90vh] flex flex-col justify-center bg-[#050505] z-10 border-b border-white/5">
+        <section className={`relative ${compact ? 'py-20' : 'h-[90vh]'} flex flex-col justify-center bg-[#050505] z-10 border-b border-white/5`}>
             <Container>
                 <div className="max-w-4xl flex flex-col items-center lg:items-start text-center lg:text-left mx-auto lg:mx-0">
-                    <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-white leading-[0.9] tracking-tighter mb-6">
+                    <h1 className={`${compact ? 'text-4xl md:text-5xl' : 'text-5xl md:text-7xl lg:text-9xl'} font-black text-white leading-[0.9] tracking-tighter mb-6`}>
                         Meu<br /><span className="text-yellow-400">Método</span>
                     </h1>
 
@@ -76,24 +75,25 @@ const Header = () => {
                 </div>
             </Container>
 
-            <Container className="absolute bottom-12 left-0 right-0">
-                <div className="flex items-center gap-4 text-neutral-500 animate-bounce justify-center lg:justify-start">
-                    <ArrowDown className="w-6 h-6 text-yellow-400" />
-                    <span className="text-sm uppercase tracking-widest font-bold">Conheça a lógica por trás da estética</span>
-                </div>
-            </Container>
+            {!compact && (
+                <Container className="absolute bottom-12 left-0 right-0">
+                    <div className="flex items-center gap-4 text-neutral-500 animate-bounce justify-center lg:justify-start">
+                        <ArrowDown className="w-6 h-6 text-yellow-400" />
+                        <span className="text-sm uppercase tracking-widest font-bold">Conheça a lógica por trás da estética</span>
+                    </div>
+                </Container>
+            )}
         </section>
     );
 };
 
-// --- Componente: Nó (Bolinha) ---
+// --- Componente: Nó (Bolinha) Desktop ---
 const ProgressNode: React.FC<ProgressNodeProps> = ({
     nodeX,
     scrollYProgress,
     threshold,
     index
 }) => {
-    // O nó 0 começa ativo. Os outros ativam com o threshold.
     const activeState = useTransform(
         scrollYProgress,
         index === 0 ? [0, 0] : [threshold - 0.005, threshold],
@@ -124,7 +124,7 @@ const ProgressNode: React.FC<ProgressNodeProps> = ({
     );
 };
 
-// --- Componente: Card ---
+// --- Componente: Card Desktop (spotlight + spring) ---
 const SpotlightCard: React.FC<SpotlightCardProps> = ({ step, scrollYProgress, threshold, dynamicWidth }) => {
     const ref = useRef<HTMLDivElement>(null);
     const mouseX = useMotionValue(0);
@@ -199,72 +199,137 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({ step, scrollYProgress, th
     );
 };
 
-// --- Componente Principal: Timeline Horizontal ---
-const ProcessSection: React.FC = () => {
+// ========================================
+// MOBILE CARD — lightweight, no springs
+// ========================================
+const MobileProcessCard = ({ step, index }: { step: StepProps; index: number }) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-30px' }}
+            transition={{ duration: 0.4, delay: index * 0.05 }}
+            className="w-full"
+        >
+            <div className="relative rounded-2xl bg-neutral-900/60 border border-white/5 p-6 overflow-hidden">
+                <span className="absolute -bottom-4 -right-2 text-[100px] font-black text-white/[0.02] select-none pointer-events-none leading-none">
+                    0{step.id}
+                </span>
+
+                <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="px-3 py-1 bg-yellow-400/10 border border-yellow-400/20 rounded-full">
+                            <span className="text-yellow-400 text-[10px] font-black uppercase tracking-widest">{step.year}</span>
+                        </div>
+                        <step.icon className="w-6 h-6 text-yellow-400/40" />
+                    </div>
+
+                    <h3 className="text-xl font-black text-white mb-2 tracking-tight">{step.title}</h3>
+                    <p className="text-neutral-400 text-sm leading-relaxed">{step.description}</p>
+
+                    <div className="mt-4 h-0.5 w-full bg-neutral-800 rounded-full overflow-hidden">
+                        <motion.div
+                            initial={{ width: '0%' }}
+                            whileInView={{ width: '100%' }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.8, delay: 0.2 + index * 0.1 }}
+                            className="h-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.8)]"
+                        />
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// ========================================
+// MOBILE LAYOUT — simple vertical stack
+// ========================================
+const ProcessSectionMobile = () => {
+    return (
+        <section id="processo" className="relative bg-[#050505]">
+            <Header compact />
+
+            <div className="px-5 pb-16 pt-4">
+                <div className="relative max-w-md mx-auto">
+                    {/* Vertical timeline line */}
+                    <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-white/5" />
+
+                    <div className="flex flex-col gap-6 pl-10">
+                        {steps.map((step, index) => (
+                            <div key={step.id} className="relative">
+                                {/* Dot */}
+                                <div className="absolute -left-10 top-6 w-3 h-3 rounded-full bg-yellow-400 shadow-[0_0_12px_rgba(250,204,21,0.6)] border-2 border-[#050505]" />
+                                <MobileProcessCard step={step} index={index} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* CTA */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4 }}
+                    className="flex flex-col items-center text-center mt-12"
+                >
+                    <div className="relative mb-8">
+                        <div className="absolute inset-0 bg-yellow-400/20 blur-3xl rounded-full" />
+                        <div className="relative w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(250,204,21,0.4)]">
+                            <Zap className="w-8 h-8 text-black fill-black" />
+                        </div>
+                    </div>
+                    <h3 className="text-3xl font-black text-white tracking-tighter leading-none mb-6">Vamos<br />Começar?</h3>
+                    <GoldButton whatsappMessage="Olá! Vi sua Metodologia e quero iniciar um projeto.">
+                        Solicitar Projeto
+                    </GoldButton>
+                </motion.div>
+            </div>
+        </section>
+    );
+};
+
+// ========================================
+// DESKTOP: Original Horizontal Timeline
+// ========================================
+const ProcessSectionDesktop: React.FC = () => {
     const targetRef = useRef<HTMLDivElement | null>(null);
 
-    // --- MANUAL SCROLL TRACKING ---
     const { scrollY } = useScroll();
     const [elementTop, setElementTop] = useState(0);
     const [clientHeight, setClientHeight] = useState(0);
     const [viewportWidth, setViewportWidth] = useState(0);
 
-    // Dimensões Dinâmicas
-    const [paddingStart, setPaddingStart] = useState(200);
+    const [paddingStart, setPaddingStart] = useState(260);
     const [cardWidth, setCardWidth] = useState(CARD_WIDTH);
     const [gapWidth, setGapWidth] = useState(GAP_WIDTH);
     const [ctaWidth, setCtaWidth] = useState(FINAL_CTA_WIDTH);
 
-    /*
-     * Mapeamento manual do progresso:
-     * Start: Quando o topo da seção atinge o topo da tela (scrollY == elementTop)
-     * End: Quando o fundo da seção atinge o fundo da tela (scrollY == elementTop + clientHeight - windowHeight)
-     * (Equivalente a offset: ["start start", "end end"])
-     */
-
-    // Atualiza posições do elemento (Top/Height)
     const updatePosition = () => {
         if (targetRef.current) {
             const rect = targetRef.current.getBoundingClientRect();
             const scrollTop = window.scrollY || document.documentElement.scrollTop;
-            const absoluteTop = rect.top + scrollTop;
-
-            setElementTop(absoluteTop);
+            setElementTop(rect.top + scrollTop);
             setClientHeight(targetRef.current.offsetHeight);
         }
     };
 
-    // Atualiza dimensões da viewport e padding
     const updateDimensions = () => {
         const width = window.innerWidth;
         setViewportWidth(width);
-
-        if (width >= 1024) {
-            setPaddingStart(260); // Desktop Large
-            setCardWidth(450);
-            setGapWidth(300);
-            setCtaWidth(600);
-        } else if (width >= 768) {
-            setPaddingStart(80);  // Tablet
-            setCardWidth(400);
-            setGapWidth(150);
-            setCtaWidth(450);
-        } else {
-            setPaddingStart(16);  // Mobile
-            setCardWidth(window.innerWidth - 40); // Full width minus padding (20*2)
-            setGapWidth(60);
-            setCtaWidth(Math.min(300, window.innerWidth - 40));
-        }
+        setPaddingStart(260);
+        setCardWidth(450);
+        setGapWidth(300);
+        setCtaWidth(600);
         updatePosition();
     };
 
     useEffect(() => {
         updateDimensions();
-        // Pequeno delay para garantir que layout final esteja pronto (especialmente imagens/fontes)
         setTimeout(updateDimensions, 100);
         setTimeout(updateDimensions, 500);
 
-        // Debounced resize — batches rapid resize events (e.g. orientation change)
         let resizeTimer: ReturnType<typeof setTimeout>;
         const debouncedResize = () => {
             clearTimeout(resizeTimer);
@@ -272,8 +337,6 @@ const ProcessSection: React.FC = () => {
         };
         window.addEventListener('resize', debouncedResize);
 
-        // Scroll listener: re-measures position because lazy content above
-        // can shift elementTop as it loads and expands
         let ticking = false;
         const handleScroll = () => {
             if (!ticking) {
@@ -291,7 +354,7 @@ const ProcessSection: React.FC = () => {
             window.removeEventListener('scroll', handleScroll);
             clearTimeout(resizeTimer);
         };
-    }, []); // Dependências vazias, pois usamos apenas window e refs
+    }, []);
 
     const scrollYProgress = useTransform(
         scrollY,
@@ -299,22 +362,15 @@ const ProcessSection: React.FC = () => {
         [0, 1]
     );
 
-    // BLOCK WIDTH is now dynamic based on state
     const currentBlockWidth = cardWidth + gapWidth;
 
     const { totalContentWidth, nodePositions, lineStartX, lineTotalLength } = useMemo(() => {
-        // Calculamos posições a partir do padding (centro da tela)
         const positions = [
             paddingStart,
             ...steps.map((_, i) => paddingStart + (i + 1) * currentBlockWidth)
         ];
-
-        // Padding final reduzido para aproximar o conteúdo do canto direito
         const endPadding = paddingStart / 4;
-
-        // Largura total REAL do conteúdo (incluindo o spacer final)
         const totalWidth = paddingStart + (steps.length * currentBlockWidth) + ctaWidth + endPadding;
-
         const lStart = positions[0];
         const lEnd = positions[positions.length - 1];
 
@@ -324,14 +380,9 @@ const ProcessSection: React.FC = () => {
             lineStartX: lStart,
             lineTotalLength: lEnd - lStart
         };
-    }, [paddingStart, viewportWidth, cardWidth, gapWidth, ctaWidth]); // Dependências atualizadas
+    }, [paddingStart, viewportWidth, cardWidth, gapWidth, ctaWidth]);
 
-    // Mobile: scroll stops when CTA is centered on screen.
-    // Desktop: scroll stops when right edge of content hits right edge of screen.
-    const ctaCenterX = paddingStart + (steps.length * currentBlockWidth) + ctaWidth / 2;
-    const maxScroll = viewportWidth < 1024
-        ? Math.max(0, ctaCenterX - viewportWidth / 2)
-        : Math.max(0, totalContentWidth - viewportWidth);
+    const maxScroll = Math.max(0, totalContentWidth - viewportWidth);
     const x = useTransform(scrollYProgress, [0, 1], ["0px", `-${maxScroll}px`]);
     const lineWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
@@ -341,27 +392,20 @@ const ProcessSection: React.FC = () => {
             <section ref={targetRef} className="relative h-[600vh] bg-[#050505] overflow-visible">
                 <div className="sticky top-0 flex h-screen items-center overflow-hidden">
 
-                    {/* Container Horizontal Móvel */}
                     <motion.div style={{ x }} className="flex items-center relative h-full">
 
-                        {/* Container Fantasma para garantir a largura */}
                         <div style={{ width: totalContentWidth, height: '100%', position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }} />
 
-                        {/* --- LINHA MESTRA (Track + Laser) --- */}
                         <div className="absolute top-1/2 -translate-y-1/2 z-10 pointer-events-none"
                             style={{ left: `${lineStartX}px`, width: `${lineTotalLength}px`, height: '2px' }}>
-
                             <div className="absolute inset-0 bg-white/5" />
-
                             <motion.div
                                 style={{ width: lineWidth }}
                                 className="h-full bg-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.9),0_0_5px_rgba(250,204,21,1)] origin-left"
                             />
                         </div>
 
-                        {/* Nós (Bolinhas) */}
                         {nodePositions.map((pos, idx) => {
-                            // Threshold relativo ao comprimento da linha (0 a 1 dentro da linha)
                             const relativeThreshold = (pos - lineStartX) / lineTotalLength;
                             return (
                                 <ProgressNode
@@ -374,10 +418,8 @@ const ProcessSection: React.FC = () => {
                             );
                         })}
 
-                        {/* Espaçador Inicial (Empurra o primeiro item para o meio da tela) */}
                         <div style={{ width: paddingStart }} className="shrink-0 transition-all duration-300" />
 
-                        {/* Cards */}
                         <div className="flex items-center relative z-20">
                             {steps.map((step, index) => {
                                 const cardStartX = paddingStart + (index * currentBlockWidth) + (gapWidth / 2);
@@ -402,7 +444,6 @@ const ProcessSection: React.FC = () => {
                             })}
                         </div>
 
-                        {/* CTA Final */}
                         <div style={{ width: ctaWidth }} className="shrink-0 flex flex-col items-center justify-center text-center relative z-20">
                             <div className="relative">
                                 <div className="absolute inset-0 bg-yellow-400/20 blur-3xl rounded-full" />
@@ -416,7 +457,6 @@ const ProcessSection: React.FC = () => {
                             </GoldButton>
                         </div>
 
-                        {/* Espaçador Final Reduzido */}
                         <div style={{ width: paddingStart / 4 }} className="shrink-0" />
 
                     </motion.div>
@@ -424,6 +464,23 @@ const ProcessSection: React.FC = () => {
             </section>
         </section>
     );
+};
+
+// ========================================
+// MAIN EXPORT — routes to mobile/desktop
+// ========================================
+const ProcessSection: React.FC = () => {
+    const [isMobile, setIsMobile] = useState(
+        typeof window !== 'undefined' ? window.innerWidth < 1024 : false
+    );
+
+    useEffect(() => {
+        const check = () => setIsMobile(window.innerWidth < 1024);
+        window.addEventListener('resize', check);
+        return () => window.removeEventListener('resize', check);
+    }, []);
+
+    return isMobile ? <ProcessSectionMobile /> : <ProcessSectionDesktop />;
 };
 
 export default ProcessSection;
