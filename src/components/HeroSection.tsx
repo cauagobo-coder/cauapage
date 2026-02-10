@@ -34,7 +34,6 @@ const HeroSection = () => {
     const forcePlay = useCallback(() => {
         const video = videoRef.current;
         if (!video) return;
-        // Always ensure muted (required by all mobile browsers for autoplay)
         video.muted = true;
         const promise = video.play();
         if (promise !== undefined) {
@@ -43,6 +42,17 @@ const HeroSection = () => {
             }).catch(() => { /* silently fail, will retry */ });
         }
     }, []);
+
+    // Seamless loop: rewind before the last frame to avoid black flash
+    const handleTimeUpdate = useCallback(() => {
+        const video = videoRef.current;
+        if (!video || !video.duration) return;
+        // Rewind 0.3s before end to avoid the black frame on loop
+        if (video.currentTime >= video.duration - 0.3) {
+            video.currentTime = 0;
+            forcePlay();
+        }
+    }, [forcePlay]);
 
     // Main effect: mount + visibility observer + user interaction fallback
     useEffect(() => {
@@ -103,6 +113,18 @@ const HeroSection = () => {
             observer.observe(section);
         }
 
+        // Page Visibility API: force play when page becomes visible (after minimize/tab switch)
+        const onVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && videoRef.current) {
+                // Small delay to let browser restore resources
+                setTimeout(forcePlay, 100);
+            }
+        };
+        document.addEventListener('visibilitychange', onVisibilityChange);
+
+        // Seamless loop handler (replaces native loop to avoid black flash)
+        video.addEventListener('timeupdate', handleTimeUpdate);
+
         // Also retry when video data is loaded (canplay event)
         const onCanPlay = () => forcePlay();
         video.addEventListener('canplay', onCanPlay);
@@ -114,10 +136,12 @@ const HeroSection = () => {
             document.removeEventListener('touchstart', onUserInteract);
             document.removeEventListener('click', onUserInteract);
             document.removeEventListener('scroll', onUserInteract);
+            document.removeEventListener('visibilitychange', onVisibilityChange);
+            video.removeEventListener('timeupdate', handleTimeUpdate);
             video.removeEventListener('canplay', onCanPlay);
             observer?.disconnect();
         };
-    }, [videoSource.key, forcePlay]);
+    }, [videoSource.key, forcePlay, handleTimeUpdate]);
 
     return (
         <section ref={sectionRef} id="hero" className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
@@ -127,7 +151,6 @@ const HeroSection = () => {
                     ref={videoRef}
                     key={videoSource.key}
                     autoPlay
-                    loop
                     muted
                     playsInline
                     disablePictureInPicture
