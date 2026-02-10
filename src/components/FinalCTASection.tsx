@@ -32,7 +32,7 @@ const FinalCTASection: React.FC = () => {
                         onClick={handleContactClick}
                         className="mx-auto"
                     >
-                        INICIAR CONVERSA
+                        Iniciar Conversa
                     </GoldButton>
                 </motion.div>
             </div>

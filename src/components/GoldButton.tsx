@@ -22,7 +22,7 @@ export const GoldButton: React.FC<ButtonProps> = ({ children, className = '', wh
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`btn-primary-gold relative px-10 py-4 text-base font-extrabold tracking-widest uppercase text-[#1a0f00] overflow-hidden border-none cursor-pointer backface-hidden inline-flex items-center justify-center decoration-0 whitespace-nowrap ${className}`}
+                className={`btn-primary-gold relative px-10 py-4 text-base font-extrabold tracking-widest text-[#1a0f00] overflow-hidden border-none cursor-pointer backface-hidden inline-flex items-center justify-center decoration-0 whitespace-nowrap ${className}`}
             >
                 <span className="relative z-10">{children}</span>
                 <div className="inner-glow absolute inset-0 z-[2] pointer-events-none" />
@@ -32,7 +32,7 @@ export const GoldButton: React.FC<ButtonProps> = ({ children, className = '', wh
 
     return (
         <button
-            className={`btn-primary-gold relative px-10 py-4 text-base font-extrabold tracking-widest uppercase text-[#1a0f00] overflow-hidden border-none cursor-pointer backface-hidden whitespace-nowrap ${className}`}
+            className={`btn-primary-gold relative px-10 py-4 text-base font-extrabold tracking-widest text-[#1a0f00] overflow-hidden border-none cursor-pointer backface-hidden whitespace-nowrap ${className}`}
             onClick={onClick}
             {...props}
         >
@@ -45,7 +45,7 @@ export const GoldButton: React.FC<ButtonProps> = ({ children, className = '', wh
 export const CyberButton: React.FC<ButtonProps> = ({ children, className = '', onClick, ...props }) => {
     return (
         <button
-            className={`btn-secondary-cyber relative px-10 py-[14px] text-base font-bold tracking-[3px] uppercase border-none cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap ${className}`}
+            className={`btn-secondary-cyber relative px-10 py-[14px] text-base font-bold tracking-[3px] border-none cursor-pointer flex items-center justify-center gap-2 whitespace-nowrap ${className}`}
             onClick={onClick}
             {...props}
         >

@@ -56,7 +56,7 @@ const Header = () => {
             <Container>
                 <div className="max-w-4xl flex flex-col items-center lg:items-start text-center lg:text-left mx-auto lg:mx-0">
                     <h1 className="text-7xl md:text-9xl font-black text-white leading-[0.9] tracking-tighter mb-6">
-                        MEU<br /><span className="text-yellow-400">MÉTODO</span>
+                        Meu<br /><span className="text-yellow-400">Método</span>
                     </h1>
 
                     <p className="text-neutral-300 font-semibold text-lg md:text-2xl max-w-2xl leading-snug mb-6">
@@ -385,7 +385,7 @@ const ProcessSection: React.FC = () => {
                                     <Zap className="w-12 h-12 text-black fill-black" />
                                 </div>
                             </div>
-                            <h3 className="text-7xl font-black text-white tracking-tighter leading-none mb-8">VAMOS<br />COMEÇAR?</h3>
+                            <h3 className="text-7xl font-black text-white tracking-tighter leading-none mb-8">Vamos<br />Começar?</h3>
                             <GoldButton whatsappMessage="Olá! Vi sua Metodologia e quero iniciar um projeto.">
                                 Solicitar Projeto
                             </GoldButton>

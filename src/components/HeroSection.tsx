@@ -1,22 +1,47 @@
+import { useState, useEffect } from 'react';
 import GoldButton, { CyberButton } from './GoldButton';
 import Container from './Container';
 
+const useVideoSource = () => {
+    const [source, setSource] = useState('/videos/hero-desktop.mp4');
+
+    useEffect(() => {
+        const update = () => {
+            const w = window.innerWidth;
+            if (w < 768) setSource('/videos/hero-mobile.mp4');
+            else if (w < 1024) setSource('/videos/hero-tablet.mp4');
+            else setSource('/videos/hero-desktop.mp4');
+        };
+        update();
+        window.addEventListener('resize', update);
+        return () => window.removeEventListener('resize', update);
+    }, []);
+
+    return source;
+};
+
 const HeroSection = () => {
+    const videoSrc = useVideoSource();
+
     return (
         <section id="hero" className="min-h-screen flex items-center relative overflow-hidden pt-24 pb-16">
             {/* Video Background */}
             <div className="absolute inset-0 w-full h-full z-0">
                 <video
+                    key={videoSrc}
                     autoPlay
                     loop
                     muted
                     playsInline
                     className="w-full h-full object-cover"
                 >
-                    <source src="/videos/composicao-1.mp4" type="video/mp4" />
+                    <source src={videoSrc} type="video/mp4" />
                     Seu navegador não suporta vídeo.
                 </video>
             </div>
+
+            {/* Dark overlay - stronger on mobile/tablet for text readability */}
+            <div className="absolute inset-0 z-[1] bg-black/60 lg:bg-transparent" />
 
             <Container className="relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
