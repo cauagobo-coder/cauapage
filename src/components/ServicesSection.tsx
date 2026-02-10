@@ -1,7 +1,7 @@
 // @ts-ignore
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Zap, Building2, Image, ArrowRight } from 'lucide-react';
+import { Zap, Globe, Layers, ArrowRight } from 'lucide-react';
 import { CyberButton } from './GoldButton';
 // Three.js is loaded dynamically (only on desktop) to save ~600KB on mobile bundle
 import gsap from 'gsap';
@@ -24,7 +24,7 @@ const services = [
     },
     {
         id: 'service-2',
-        icon: Building2,
+        icon: Globe,
         titlePrefix: 'Site Institucional',
         titleHighlight: 'Premium',
         description: 'Presença digital profissional para sua empresa. Múltiplas páginas, SEO básico e credibilidade garantida.',
@@ -34,7 +34,7 @@ const services = [
     },
     {
         id: 'service-3',
-        icon: Image,
+        icon: Layers,
         titlePrefix: 'Portfólio /',
         titleHighlight: 'Catálogo',
         description: 'Mostre seus trabalhos ou produtos de forma visual e organizada. Ideal para profissionais criativos e pequenas empresas.',
