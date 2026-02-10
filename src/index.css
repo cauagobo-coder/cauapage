@@ -378,10 +378,10 @@ body {
 
   /* ESTADO INICIAL — Mobile: lighter zoom, no bg image (hero video covers it) */
   transform: scale(1.5);
-  filter: brightness(0.2);
+  filter: brightness(0.5);
   transform-origin: center top;
 
-  transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), filter 2.5s ease-out;
+  transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), filter 1.5s ease-out;
   will-change: transform, filter;
 }
 
