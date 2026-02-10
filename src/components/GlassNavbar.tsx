@@ -55,8 +55,12 @@ const GlassNavbar: React.FC<{ isLoaded: boolean }> = ({ isLoaded }) => {
         }
     };
 
-    // Scroll Spy Logic usando useLenis para sincronia perfeita e alta performance
+    // Scroll Spy Logic usando useLenis — throttled to 100ms for mobile perf
+    const lastCalcRef = useRef<number>(0);
     useLenis(() => {
+        const now = Date.now();
+        if (now - lastCalcRef.current < 100) return;
+        lastCalcRef.current = now;
         calculateActiveSection();
     }, []);
 

@@ -163,8 +163,8 @@ const ServiceCardDesktop = ({
                     <motion.div
                         initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, margin: '-20%' }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
+                        viewport={{ once: true, margin: '200px' }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
                         className={`
                             pointer-events-auto group relative w-full
                             lg:col-span-5
@@ -578,8 +578,8 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
+                        viewport={{ once: true, margin: '200px' }}
+                        transition={{ duration: 0.4 }}
                         className="max-w-2xl text-center lg:text-left mx-auto lg:mx-0"
                     >
                         <span className="text-yellow-500 text-sm font-medium tracking-wider uppercase mb-4 block">

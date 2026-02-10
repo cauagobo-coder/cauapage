@@ -64,8 +64,8 @@ const DifferentialsSection = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
+                    viewport={{ once: true, margin: '200px' }}
+                    transition={{ duration: 0.4 }}
                 >
                     <h2 className="text-2xl md:text-3xl font-bold mb-4">
                         Por que <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-600">me escolher?</span>

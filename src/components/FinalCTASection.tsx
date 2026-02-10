@@ -15,10 +15,10 @@ const FinalCTASection: React.FC = () => {
 
             <div className="container mx-auto px-6 relative z-10 text-center">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
+                    viewport={{ once: true, margin: '200px' }}
+                    transition={{ duration: 0.4 }}
                 >
                     <h2 className="text-4xl md:text-6xl font-black text-white mb-6 tracking-tight">
                         Quer um site <span className="text-yellow-500">nesse nível?</span>

@@ -6,9 +6,8 @@ export const CustomScrollbar = () => {
     const trackRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const lenisRef = useRef<any>(null);
-    const rafRef = useRef<number | null>(null);
 
-    // Function to calculate and update scrollbar (can be called from loop or scroll)
+    // Function to calculate and update scrollbar (called from Lenis callback only)
     const updateScrollbar = useCallback(() => {
         if (!thumbRef.current || !trackRef.current || isDragging || !lenisRef.current) return;
 
@@ -44,16 +43,10 @@ export const CustomScrollbar = () => {
         thumbRef.current.style.transform = `translate3d(0, ${y}px, 0)`;
     }, [isDragging]);
 
-    // Loop to catch layout changes (like zoom finishing)
+    // One-time recalculation after layout changes (like zoom finishing)
     useEffect(() => {
-        const loop = () => {
-            updateScrollbar();
-            rafRef.current = requestAnimationFrame(loop);
-        };
-        loop();
-        return () => {
-            if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        };
+        const timer = setTimeout(updateScrollbar, 600);
+        return () => clearTimeout(timer);
     }, [updateScrollbar]);
 
     // Lenis Scroll Hook

@@ -535,3 +535,25 @@ body {
   animation: none !important;
   transform: none !important;
 }
+
+/* ================= MOBILE PERFORMANCE OPTIMIZATIONS ================= */
+@media (max-width: 1023px) {
+
+  /* Force compositing layers on scroll-animated containers */
+  section,
+  .sticky {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Reduce heavy blur effects that cause GPU stutter on mobile */
+  .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(4px) !important;
+    backdrop-filter: blur(4px) !important;
+  }
+
+  /* Reduce complex drop-shadows on mobile for smoother compositing */
+  .shadow-2xl {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  }
+}

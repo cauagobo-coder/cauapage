@@ -45,8 +45,8 @@ const ProjectsSection = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
+                    viewport={{ once: true, margin: '200px' }}
+                    transition={{ duration: 0.4 }}
                     className="text-center mb-16"
                 >
                     <span className="text-yellow-500 text-sm font-bold tracking-widest uppercase mb-4 block">
@@ -115,8 +115,8 @@ const ProjectsSection = () => {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
+                    viewport={{ once: true, margin: '200px' }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
                     className="text-center"
                 >
                     <CyberButton

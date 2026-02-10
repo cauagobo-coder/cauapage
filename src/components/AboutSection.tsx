@@ -25,8 +25,8 @@ const AboutSection = () => {
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
                         whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
+                        viewport={{ once: true, margin: '200px' }}
+                        transition={{ duration: 0.4 }}
                         className="lg:col-span-6 text-center lg:text-left mx-auto lg:mx-0 w-full max-w-2xl lg:self-center"
                     >
                         <span className="text-yellow-500 text-sm font-bold tracking-widest uppercase mb-4 block">

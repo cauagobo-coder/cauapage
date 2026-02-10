@@ -1,7 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
+import { useRef, useEffect, useState, ReactNode } from 'react';
 
 interface GlassCardProps {
     children: ReactNode;
@@ -10,15 +9,38 @@ interface GlassCardProps {
 }
 
 const GlassCard = ({ children, className = '', delay = 0 }: GlassCardProps) => {
+    const ref = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    // Delay if specified, otherwise show immediately
+                    if (delay > 0) {
+                        setTimeout(() => setIsVisible(true), delay * 1000);
+                    } else {
+                        setIsVisible(true);
+                    }
+                    observer.unobserve(el);
+                }
+            },
+            { rootMargin: '100px' } // trigger 100px before entering viewport — no flash
+        );
+
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [delay]);
+
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-50px' }}
-            transition={{ duration: 0.5, delay }}
+        <div
+            ref={ref}
             className={`
                 relative z-10 overflow-hidden group
-                bg-white/[0.03] backdrop-blur-xl 
+                bg-white/[0.03] backdrop-blur-sm md:backdrop-blur-xl 
                 border border-white/[0.05]
                 rounded-2xl
                 hover:bg-white/[0.05] hover:border-yellow-500/20 
@@ -27,6 +49,12 @@ const GlassCard = ({ children, className = '', delay = 0 }: GlassCardProps) => {
                 p-6
                 ${className}
             `}
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? 'translateY(0)' : 'translateY(12px)',
+                transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
+                willChange: 'opacity, transform',
+            }}
         >
             {/* Efeito de brilho suave no topo (Spotlight) */}
             <div className="absolute -inset-full bg-gradient-to-r from-transparent via-white/5 to-transparent rotate-45 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out pointer-events-none" />
@@ -36,7 +64,7 @@ const GlassCard = ({ children, className = '', delay = 0 }: GlassCardProps) => {
 
             {/* Conteúdo */}
             {children}
-        </motion.div>
+        </div>
     );
 };
 
