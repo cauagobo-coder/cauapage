@@ -29,7 +29,6 @@ const HeroSection = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
     const hasPlayedRef = useRef(false);
-    const [videoReady, setVideoReady] = useState(false);
 
     // Robust play function — tries play and marks success
     const forcePlay = useCallback(() => {
@@ -121,13 +120,6 @@ const HeroSection = () => {
 
     return (
         <section ref={sectionRef} id="hero" className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
-            {/* Loading placeholder — shows while video loads */}
-            {!videoReady && (
-                <div className="absolute inset-0 w-full h-full z-0">
-                    <div className="w-full h-full bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 animate-pulse" />
-                </div>
-            )}
-
             {/* Video Background */}
             <div className="absolute inset-0 w-full h-full z-0">
                 <video
@@ -139,9 +131,8 @@ const HeroSection = () => {
                     playsInline
                     disablePictureInPicture
                     preload="auto"
-                    className={`w-full h-full object-cover object-center lg:object-right scale-[1.4] -translate-y-[15%] lg:scale-100 lg:translate-y-0 transition-opacity duration-700 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+                    className="w-full h-full object-cover object-center lg:object-right scale-[1.4] -translate-y-[15%] lg:scale-100 lg:translate-y-0"
                     style={{ pointerEvents: 'none' }}
-                    onPlaying={() => setVideoReady(true)}
                 >
                     {/* MP4 first — iOS Safari does NOT support WebM */}
                     <source src={videoSource.mp4} type="video/mp4" />
