@@ -552,4 +552,15 @@ body {
     content-visibility: auto;
     contain-intrinsic-size: auto 100vh;
   }
+
+  /* Hide native video play/pause overlays on mobile browsers */
+  video::-webkit-media-controls,
+  video::-webkit-media-controls-enclosure,
+  video::-webkit-media-controls-play-button,
+  video::-webkit-media-controls-start-playback-button,
+  video::-webkit-media-controls-panel {
+    display: none !important;
+    -webkit-appearance: none !important;
+    opacity: 0 !important;
+  }
 }

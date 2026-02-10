@@ -25,8 +25,20 @@ const HeroSection = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
 
-    // Pause video when Hero scrolls off-screen — frees ~100-150MB of decoded frames
+    // Force play on mount + pause/resume based on visibility
     useEffect(() => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        // Force play on initial mount (some mobile browsers need this)
+        const tryPlay = () => {
+            video.play().catch(() => { });
+        };
+        tryPlay();
+
+        // Also try after a small delay for slow mobile loads
+        const playTimer = setTimeout(tryPlay, 500);
+
         if (!sectionRef.current) return;
 
         const observer = new IntersectionObserver(
@@ -38,12 +50,15 @@ const HeroSection = () => {
                     videoRef.current.pause();
                 }
             },
-            { rootMargin: '100px' }
+            { rootMargin: '100px', threshold: 0 }
         );
 
         observer.observe(sectionRef.current);
-        return () => observer.disconnect();
-    }, []);
+        return () => {
+            clearTimeout(playTimer);
+            observer.disconnect();
+        };
+    }, [videoSrc]);
 
     return (
         <section ref={sectionRef} id="hero" className="min-h-screen flex items-center relative overflow-hidden pt-24 pb-16">
@@ -56,7 +71,9 @@ const HeroSection = () => {
                     loop
                     muted
                     playsInline
+                    disablePictureInPicture
                     className="w-full h-full object-cover object-center lg:object-right"
+                    style={{ pointerEvents: 'none' }}
                 >
                     <source src={videoSrc} type="video/webm" />
                     Seu navegador não suporta vídeo.
