@@ -119,7 +119,7 @@ const HeroSection = () => {
     }, [videoSource.key, forcePlay]);
 
     return (
-        <section ref={sectionRef} id="hero" className="min-h-screen flex items-end lg:items-center relative overflow-hidden pt-16 pb-10 lg:pt-24 lg:pb-16">
+        <section ref={sectionRef} id="hero" className="min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
             {/* Video Background */}
             <div className="absolute inset-0 w-full h-full z-0">
                 <video
