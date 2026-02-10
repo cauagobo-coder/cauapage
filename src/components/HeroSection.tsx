@@ -131,7 +131,7 @@ const HeroSection = () => {
                     playsInline
                     disablePictureInPicture
                     preload="auto"
-                    className="w-full h-full object-cover object-[center_40%] lg:object-center lg:object-right"
+                    className="w-full h-full object-cover object-center lg:object-right scale-[1.4] -translate-y-[15%] lg:scale-100 lg:translate-y-0"
                     style={{ pointerEvents: 'none' }}
                 >
                     {/* MP4 first — iOS Safari does NOT support WebM */}
