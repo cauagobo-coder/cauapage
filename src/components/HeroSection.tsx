@@ -3,25 +3,29 @@ import GoldButton, { CyberButton } from './GoldButton';
 import Container from './Container';
 
 const useVideoSource = () => {
-    const [source, setSource] = useState('/videos/hero-desktop.webm');
+    const [base, setBase] = useState('hero-desktop');
 
     useEffect(() => {
         const update = () => {
             const w = window.innerWidth;
-            if (w < 768) setSource('/videos/hero-mobile.webm');
-            else if (w < 1024) setSource('/videos/hero-tablet.webm');
-            else setSource('/videos/hero-desktop.webm');
+            if (w < 768) setBase('hero-mobile');
+            else if (w < 1024) setBase('hero-tablet');
+            else setBase('hero-desktop');
         };
         update();
         window.addEventListener('resize', update);
         return () => window.removeEventListener('resize', update);
     }, []);
 
-    return source;
+    return {
+        mp4: `/videos/${base}.mp4`,
+        webm: `/videos/${base}.webm`,
+        key: base,
+    };
 };
 
 const HeroSection = () => {
-    const videoSrc = useVideoSource();
+    const videoSource = useVideoSource();
     const videoRef = useRef<HTMLVideoElement>(null);
     const sectionRef = useRef<HTMLElement>(null);
     const hasPlayedRef = useRef(false);
@@ -112,7 +116,7 @@ const HeroSection = () => {
             video.removeEventListener('canplay', onCanPlay);
             observer?.disconnect();
         };
-    }, [videoSrc, forcePlay]);
+    }, [videoSource.key, forcePlay]);
 
     return (
         <section ref={sectionRef} id="hero" className="min-h-screen flex items-center relative overflow-hidden pt-24 pb-16">
@@ -120,7 +124,7 @@ const HeroSection = () => {
             <div className="absolute inset-0 w-full h-full z-0">
                 <video
                     ref={videoRef}
-                    key={videoSrc}
+                    key={videoSource.key}
                     autoPlay
                     loop
                     muted
@@ -130,7 +134,9 @@ const HeroSection = () => {
                     className="w-full h-full object-cover object-center lg:object-right"
                     style={{ pointerEvents: 'none' }}
                 >
-                    <source src={videoSrc} type="video/webm" />
+                    {/* MP4 first — iOS Safari does NOT support WebM */}
+                    <source src={videoSource.mp4} type="video/mp4" />
+                    <source src={videoSource.webm} type="video/webm" />
                     Seu navegador não suporta vídeo.
                 </video>
             </div>
