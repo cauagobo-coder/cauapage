@@ -141,8 +141,8 @@ const HeroSection = () => {
                 </video>
             </div>
 
-            {/* Dark overlay - gradient on mobile so video shows through at top */}
-            <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black via-black/70 to-black/20 lg:bg-gradient-to-r lg:from-transparent lg:to-transparent" />
+            {/* Subtle bottom fade only — for text readability over video */}
+            <div className="absolute inset-x-0 bottom-0 h-[60%] z-[1] bg-gradient-to-t from-black/80 via-black/40 to-transparent lg:hidden" />
 
             <Container className="relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
