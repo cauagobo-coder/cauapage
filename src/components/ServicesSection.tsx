@@ -231,62 +231,12 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
     const rendererRef = useRef<any>(null);
     const cameraRef = useRef<any>(null);
 
-    // TWO Separate Refs for split control
-    const cardsContainerMobileRef = useRef<HTMLDivElement>(null);
-    const mobileCardsRef = useRef<(HTMLDivElement | null)[]>([]);
+    // Desktop-only refs
 
     const cardsContainerDesktopRef = useRef<HTMLDivElement>(null);
     const desktopCardsRef = useRef<(HTMLDivElement | null)[]>([]);
 
     const ctxRef = useRef<gsap.Context | null>(null);
-
-    // --- MOBILE ANIMATION EFFECT (Separate from 3D logic) ---
-    React.useLayoutEffect(() => {
-        const ctx = gsap.context(() => {
-            const mm = gsap.matchMedia();
-
-            mm.add("(max-width: 1023px)", () => {
-                if (!cardsContainerMobileRef.current) return;
-                const cards = mobileCardsRef.current.filter(Boolean);
-                if (cards.length === 0) return;
-
-                // Force initial state (this overwrites the inline styles smoothly)
-                cards.forEach((card, i) => {
-                    if (i === 0) {
-                        gsap.set(card, { xPercent: 0, autoAlpha: 1, zIndex: 1 });
-                    } else {
-                        gsap.set(card, { xPercent: 100, autoAlpha: 1, zIndex: i + 1 });
-                    }
-                });
-
-                ScrollTrigger.refresh(); // Ensure strict calculation
-
-                const tl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: cardsContainerMobileRef.current,
-                        // pin: false, // CSS Sticky handles this
-                        scrub: 1,
-                        start: "top top",
-                        end: "bottom bottom",
-                        invalidateOnRefresh: true,
-                    }
-                });
-
-                cards.forEach((card, i) => {
-                    if (i === 0) return;
-
-                    // Current card enters from right
-                    tl.to(card, {
-                        xPercent: 0,
-                        duration: 1,
-                        ease: "power2.out"
-                    }, i - 0.5);
-                });
-            });
-        }, cardsContainerMobileRef);
-
-        return () => ctx.revert();
-    }, [services]);
 
     // --- 3D INITIALIZATION (DESKTOP ONLY, >= 1024px) ---
     useEffect(() => {
@@ -601,29 +551,20 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
                     <canvas ref={canvasRef} className="w-full h-full block" />
                 </div>
 
-                {/* MOBILE LIST (Visible up to lg) - PINNED STACK ANIMATION */}
-                {/* MOBILE LIST (Visible up to lg) - CSS STICKY + SCROLL ANIMATION */}
-                <div
-                    ref={cardsContainerMobileRef}
-                    className="relative z-10 w-full lg:hidden h-[400vh]"
-                >
-                    <div className="sticky top-0 w-full h-screen flex items-center justify-center overflow-hidden bg-[#050505]">
-                        {services.map((service, index) => (
-                            <div
-                                key={`mobile-wrapper-${service.id}`}
-                                ref={(el) => mobileCardsRef.current[index] = el}
-                                className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none"
-                            >
-                                <div className="w-full h-full flex items-center justify-center pointer-events-auto px-4">
-                                    <ServiceCardMobile
-                                        key={`mobile-${service.id}`}
-                                        service={service}
-                                        index={index}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                {/* MOBILE LIST — Simple vertical stack, NO ScrollTrigger (performance) */}
+                <div className="relative z-10 w-full lg:hidden py-12 px-4 flex flex-col items-center gap-8">
+                    {services.map((service, index) => (
+                        <motion.div
+                            key={`mobile-${service.id}`}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: '-50px' }}
+                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                            className="w-full max-w-md"
+                        >
+                            <ServiceCardMobile service={service} index={index} />
+                        </motion.div>
+                    ))}
                 </div>
 
                 {/* DESKTOP LIST (Hidden on mobile) */}

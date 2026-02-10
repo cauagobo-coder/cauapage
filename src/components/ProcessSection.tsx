@@ -108,7 +108,7 @@ const ProgressNode: React.FC<ProgressNodeProps> = ({
 
     return (
         <div
-            className="absolute top-1/2 -translate-y-1/2 translate-x-1 lg:translate-x-0 z-30 flex items-center justify-center pointer-events-none"
+            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-30 flex items-center justify-center pointer-events-none"
             style={{ left: `${nodeX}px` }}
         >
             <motion.div
@@ -252,7 +252,7 @@ const ProcessSection: React.FC = () => {
         } else {
             setPaddingStart(16);  // Mobile
             setCardWidth(window.innerWidth - 40); // Full width minus padding (20*2)
-            setGapWidth(24);
+            setGapWidth(60);
             setCtaWidth(Math.min(300, window.innerWidth - 40));
         }
         updatePosition();
