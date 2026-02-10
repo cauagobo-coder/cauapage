@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import GoldButton, { CyberButton } from './GoldButton';
 import Container from './Container';
 
@@ -22,12 +22,35 @@ const useVideoSource = () => {
 
 const HeroSection = () => {
     const videoSrc = useVideoSource();
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const sectionRef = useRef<HTMLElement>(null);
+
+    // Pause video when Hero scrolls off-screen — frees ~100-150MB of decoded frames
+    useEffect(() => {
+        if (!sectionRef.current) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (!videoRef.current) return;
+                if (entry.isIntersecting) {
+                    videoRef.current.play().catch(() => { });
+                } else {
+                    videoRef.current.pause();
+                }
+            },
+            { rootMargin: '100px' }
+        );
+
+        observer.observe(sectionRef.current);
+        return () => observer.disconnect();
+    }, []);
 
     return (
-        <section id="hero" className="min-h-screen flex items-center relative overflow-hidden pt-24 pb-16">
+        <section ref={sectionRef} id="hero" className="min-h-screen flex items-center relative overflow-hidden pt-24 pb-16">
             {/* Video Background */}
             <div className="absolute inset-0 w-full h-full z-0">
                 <video
+                    ref={videoRef}
                     key={videoSrc}
                     autoPlay
                     loop
