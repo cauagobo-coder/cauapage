@@ -92,7 +92,7 @@ const GlassNavbar: React.FC<{ isLoaded: boolean }> = ({ isLoaded }) => {
         <nav
             className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4"
         >
-            <div className="flex items-center gap-1 p-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10 shadow-lg">
+            <div className="flex items-center gap-0.5 md:gap-1 p-1 md:p-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10 shadow-lg">
                 {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = activeTab === item.name;
@@ -103,7 +103,7 @@ const GlassNavbar: React.FC<{ isLoaded: boolean }> = ({ isLoaded }) => {
                             href={item.url}
                             onClick={(e) => handleNavClick(e, item.url, item.name)}
                             className={`
-                relative cursor-pointer text-sm font-medium px-4 py-2.5 rounded-full 
+                relative cursor-pointer text-sm font-medium px-3 py-2 md:px-4 md:py-2.5 rounded-full 
                 transition-colors duration-300 ease-in-out select-none flex items-center gap-2
                 outline-none focus-visible:ring-2 focus-visible:ring-yellow-500/50
                 ${isActive ? 'text-yellow-500' : 'text-white/60 hover:text-white/90'}

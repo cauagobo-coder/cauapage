@@ -3,11 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Building2, Image, ArrowRight } from 'lucide-react';
 import { CyberButton } from './GoldButton';
-import * as THREE from 'three';
-// @ts-ignore
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-// @ts-ignore
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+// Three.js is loaded dynamically (only on desktop) to save ~600KB on mobile bundle
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Container from './Container';
@@ -229,11 +225,11 @@ const ServiceCardDesktop = ({
 const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const scrollWrapperRef = useRef<THREE.Group | null>(null);
-    const lanternModelRef = useRef<THREE.Group | null>(null);
-    const sceneRef = useRef<THREE.Scene | null>(null);
-    const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-    const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+    const scrollWrapperRef = useRef<any>(null);
+    const lanternModelRef = useRef<any>(null);
+    const sceneRef = useRef<any>(null);
+    const rendererRef = useRef<any>(null);
+    const cameraRef = useRef<any>(null);
 
     // TWO Separate Refs for split control
     const cardsContainerMobileRef = useRef<HTMLDivElement>(null);
@@ -292,55 +288,74 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
         return () => ctx.revert();
     }, [services]);
 
+    // --- 3D INITIALIZATION (DESKTOP ONLY, >= 1024px) ---
     useEffect(() => {
         if (!canvasRef.current || !containerRef.current || !enable3D) return;
 
-        const scene = new THREE.Scene();
-        sceneRef.current = scene;
+        // Skip 3D entirely on mobile/tablet — saves ~3.5MB download + GPU
+        const isDesktop = () => window.innerWidth >= 1024;
+        if (!isDesktop()) return;
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
-        cameraRef.current = camera;
+        let cancelled = false;
+        let soulLight: any;
 
-        const renderer = new THREE.WebGLRenderer({
-            alpha: true,
-            antialias: true,
-            canvas: canvasRef.current,
-            powerPreference: "high-performance"
-        });
+        const init3D = async () => {
+            if (!canvasRef.current || cancelled) return;
 
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        rendererRef.current = renderer;
+            // Dynamic import — Three.js only downloads on desktop
+            const [THREE, { GLTFLoader }, { DRACOLoader }] = await Promise.all([
+                import('three'),
+                // @ts-ignore
+                import('three/examples/jsm/loaders/GLTFLoader.js'),
+                // @ts-ignore
+                import('three/examples/jsm/loaders/DRACOLoader.js'),
+            ]);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
-        scene.add(ambientLight);
+            if (cancelled || !canvasRef.current) return;
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 3.0);
-        dirLight.position.set(5, 10, 5);
-        scene.add(dirLight);
+            const scene = new THREE.Scene();
+            sceneRef.current = scene;
 
-        const fillLight = new THREE.DirectionalLight(0xffffff, 2.0);
-        fillLight.position.set(-5, 5, -5);
-        scene.add(fillLight);
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            cameraRef.current = camera;
 
-        const frontLight = new THREE.DirectionalLight(0xffffff, 2.5);
-        frontLight.position.set(0, 0, 10);
-        scene.add(frontLight);
+            const renderer = new THREE.WebGLRenderer({
+                alpha: true,
+                antialias: true,
+                canvas: canvasRef.current,
+                powerPreference: "high-performance"
+            });
 
-        const soulLight = new THREE.PointLight(0xC9A24D, 5.0, 20);
-        soulLight.position.set(0, 0, 0);
-        scene.add(soulLight);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            rendererRef.current = renderer;
 
-        const scrollWrapper = new THREE.Group();
-        scene.add(scrollWrapper);
-        scrollWrapperRef.current = scrollWrapper;
+            const ambientLight = new THREE.AmbientLight(0xffffff, 2.0);
+            scene.add(ambientLight);
 
-        const loadModel = async () => {
+            const dirLight = new THREE.DirectionalLight(0xffffff, 3.5);
+            dirLight.position.set(5, 10, 5);
+            scene.add(dirLight);
+
+            const fillLight = new THREE.DirectionalLight(0xffffff, 2.0);
+            fillLight.position.set(-5, 5, -5);
+            scene.add(fillLight);
+
+            soulLight = new THREE.PointLight(0xC9A24D, 5.0, 20);
+            soulLight.position.set(0, 0, 0);
+            scene.add(soulLight);
+
+            const scrollWrapper = new THREE.Group();
+            scene.add(scrollWrapper);
+            scrollWrapperRef.current = scrollWrapper;
+
+            loadModel(scrollWrapper, soulLight, GLTFLoader, DRACOLoader, THREE);
+        };
+
+        const loadModel = async (scrollWrapper: any, light: any, GLTFLoader: any, DRACOLoader: any, THREE: any) => {
             const loader = new GLTFLoader();
             const dracoLoader = new DRACOLoader();
             dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
@@ -348,6 +363,7 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
 
             try {
                 const gltf = await loader.loadAsync('/models/lantern-model.glb');
+                if (cancelled) return;
                 const lanternModel = gltf.scene;
 
                 if (lanternModelRef.current) {
@@ -356,13 +372,14 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
 
                 lanternModelRef.current = lanternModel;
                 scrollWrapper.add(lanternModel);
-                lanternModel.add(soulLight);
+                lanternModel.add(light);
 
                 lanternModel.scale.set(2.5, 2.5, 2.5);
 
                 refreshAnimations();
 
             } catch (error) {
+                if (cancelled) return;
                 console.warn('Modelo lantern-model.glb não encontrado. Usando cubo placeholder.', error);
 
                 const geometry = new THREE.BoxGeometry(1, 1.5, 1);
@@ -372,12 +389,10 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
                 if (lanternModelRef.current) scrollWrapper.remove(lanternModelRef.current);
                 lanternModelRef.current = cube as any;
                 scrollWrapper.add(cube);
-                cube.add(soulLight);
+                cube.add(light);
                 refreshAnimations();
             }
         };
-
-        loadModel();
 
         const refreshAnimations = () => {
             const currentModel = lanternModelRef.current;
@@ -390,16 +405,9 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
             ctxRef.current = gsap.context(() => {
                 const mm = gsap.matchMedia();
 
-                // --- MOBILE ANIMATION (Pinned Stack + Slide In) --- //
-                // Moved to separate useEffect for immediate execution.
-
-                // --- DESKTOP ANIMATION (3D + Scroll) ---
-
-
                 // --- DESKTOP ANIMATION (3D + Scroll) ---
                 mm.add("(min-width: 1024px)", () => {
                     if (!currentModel || !currentWrapper) return;
-                    // Trigger off DESKTOP container
                     if (!cardsContainerDesktopRef.current) return;
 
                     const posX = {
@@ -492,12 +500,31 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
             }, containerRef);
         };
 
+        // Initialize 3D scene
+        init3D();
+
+        // --- Visibility-based render pause ---
+        let isVisible = true;
+        let observer: IntersectionObserver | null = null;
+
+        if (containerRef.current) {
+            observer = new IntersectionObserver(
+                ([entry]) => { isVisible = entry.isIntersecting; },
+                { rootMargin: '200px' } // Start rendering 200px before entering viewport
+            );
+            observer.observe(containerRef.current);
+        }
+
         const animate = () => {
             if (!rendererRef.current || !sceneRef.current || !cameraRef.current) return;
+            // Skip rendering when section is off-screen — saves GPU
+            if (!isVisible) return;
 
-            const t = Date.now() * 0.002;
-            soulLight.intensity = 2.5 + Math.sin(t) * 0.5;
-            soulLight.distance = 15 + Math.sin(t * 1.5) * 3;
+            if (soulLight) {
+                const t = Date.now() * 0.002;
+                soulLight.intensity = 2.5 + Math.sin(t) * 0.5;
+                soulLight.distance = 15 + Math.sin(t * 1.5) * 3;
+            }
 
             rendererRef.current.render(sceneRef.current, cameraRef.current);
         };
@@ -505,22 +532,42 @@ const ServicesSection = ({ enable3D = true }: { enable3D?: boolean }) => {
         gsap.ticker.add(animate);
         gsap.ticker.lagSmoothing(0);
 
+        const dispose3D = () => {
+            gsap.ticker.remove(animate);
+            if (observer) { observer.disconnect(); observer = null; }
+            if (ctxRef.current) ctxRef.current.revert();
+            if (rendererRef.current) {
+                rendererRef.current.dispose();
+                rendererRef.current = null;
+            }
+            sceneRef.current = null;
+            cameraRef.current = null;
+            lanternModelRef.current = null;
+            scrollWrapperRef.current = null;
+        };
+
         const handleResize = () => {
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-            renderer.setSize(width, height);
-            refreshAnimations();
+            if (!isDesktop()) {
+                dispose3D();
+                return;
+            }
+
+            if (rendererRef.current && cameraRef.current) {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                cameraRef.current.aspect = width / height;
+                cameraRef.current.updateProjectionMatrix();
+                rendererRef.current.setSize(width, height);
+                refreshAnimations();
+            }
         };
 
         window.addEventListener('resize', handleResize);
 
         return () => {
+            cancelled = true;
             window.removeEventListener('resize', handleResize);
-            gsap.ticker.remove(animate);
-            if (ctxRef.current) ctxRef.current.revert();
-            renderer.dispose();
+            dispose3D();
         };
     }, [enable3D]);
 

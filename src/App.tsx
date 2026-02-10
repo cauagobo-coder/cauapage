@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis';
 import { CustomScrollbar } from './components/CustomScrollbar';
@@ -6,13 +6,15 @@ import Preloader from './components/Preloader';
 import HeroSection from './components/HeroSection';
 import AboutSection from './components/AboutSection';
 import ServicesSection from './components/ServicesSection';
-import ProjectsSection from './components/ProjectsSection';
-import ProcessSection from './components/ProcessSection';
-import DifferentialsSection from './components/DifferentialsSection';
-import FAQSection from './components/FAQSection';
-import FooterSection from './components/FooterSection';
-import FinalCTASection from './components/FinalCTASection';
 import GlassNavbar from './components/GlassNavbar';
+
+// Lazy-loaded: below-fold sections (not needed for initial render)
+const ProjectsSection = lazy(() => import('./components/ProjectsSection'));
+const ProcessSection = lazy(() => import('./components/ProcessSection'));
+const DifferentialsSection = lazy(() => import('./components/DifferentialsSection'));
+const FAQSection = lazy(() => import('./components/FAQSection'));
+const FooterSection = lazy(() => import('./components/FooterSection'));
+const FinalCTASection = lazy(() => import('./components/FinalCTASection'));
 
 function App() {
     const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -71,12 +73,14 @@ function App() {
                     <HeroSection />
                     <AboutSection />
                     <ServicesSection enable3D={animationsDone} />
-                    <ProjectsSection />
-                    <ProcessSection />
-                    <DifferentialsSection />
-                    <FAQSection />
-                    <FinalCTASection />
-                    <FooterSection />
+                    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+                        <ProjectsSection />
+                        <ProcessSection />
+                        <DifferentialsSection />
+                        <FAQSection />
+                        <FinalCTASection />
+                        <FooterSection />
+                    </Suspense>
                 </div>
             </ReactLenis>
         </div>

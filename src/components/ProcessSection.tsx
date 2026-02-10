@@ -31,6 +31,7 @@ interface SpotlightCardProps {
     step: StepProps;
     scrollYProgress: MotionValue<number>;
     threshold: number;
+    dynamicWidth?: number;
 }
 
 // --- Dados ---
@@ -55,7 +56,7 @@ const Header = () => {
         <section className="relative h-[90vh] flex flex-col justify-center bg-[#050505] z-10 border-b border-white/5">
             <Container>
                 <div className="max-w-4xl flex flex-col items-center lg:items-start text-center lg:text-left mx-auto lg:mx-0">
-                    <h1 className="text-7xl md:text-9xl font-black text-white leading-[0.9] tracking-tighter mb-6">
+                    <h1 className="text-5xl md:text-7xl lg:text-9xl font-black text-white leading-[0.9] tracking-tighter mb-6">
                         Meu<br /><span className="text-yellow-400">Método</span>
                     </h1>
 
@@ -124,7 +125,7 @@ const ProgressNode: React.FC<ProgressNodeProps> = ({
 };
 
 // --- Componente: Card ---
-const SpotlightCard: React.FC<SpotlightCardProps> = ({ step, scrollYProgress, threshold }) => {
+const SpotlightCard: React.FC<SpotlightCardProps> = ({ step, scrollYProgress, threshold, dynamicWidth }) => {
     const ref = useRef<HTMLDivElement>(null);
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -161,25 +162,25 @@ const SpotlightCard: React.FC<SpotlightCardProps> = ({ step, scrollYProgress, th
                 rotateX,
                 rotateY,
                 transformStyle: "preserve-3d",
-                width: CARD_WIDTH,
+                width: dynamicWidth || CARD_WIDTH,
                 borderColor,
                 boxShadow: glowShadow
             }}
-            className="group relative h-[450px] shrink-0 rounded-[2rem] bg-neutral-900/60 border p-10 transition-colors"
+            className="group relative h-[350px] md:h-[400px] lg:h-[450px] shrink-0 rounded-[1.5rem] md:rounded-[2rem] bg-neutral-900/60 border p-5 md:p-7 lg:p-10 transition-colors"
         >
             <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]"
                 style={{ background: `radial-gradient(400px circle at var(--x) var(--y), rgba(250, 204, 21, 0.08), transparent 80%)` }} />
 
             <div className="relative z-10 h-full flex flex-col">
-                <div className="flex justify-between items-start mb-10">
+                <div className="flex justify-between items-start mb-6 md:mb-10">
                     <div className="px-4 py-1.5 bg-yellow-400/10 border border-yellow-400/20 rounded-full">
                         <span className="text-yellow-400 text-[10px] font-black uppercase tracking-widest">{step.year}</span>
                     </div>
                     <step.icon className="w-8 h-8 text-white/10 group-hover:text-yellow-400 group-hover:drop-shadow-[0_0_12px_rgba(250,204,21,0.4)] transition-all duration-500" />
                 </div>
 
-                <h3 className="text-4xl font-black text-white mb-4 tracking-tighter leading-none">{step.title}</h3>
-                <p className="text-neutral-500 group-hover:text-neutral-300 transition-colors leading-relaxed text-sm">{step.description}</p>
+                <h3 className="text-2xl md:text-3xl lg:text-4xl font-black text-white mb-3 md:mb-4 tracking-tighter leading-none">{step.title}</h3>
+                <p className="text-neutral-500 group-hover:text-neutral-300 transition-colors leading-relaxed text-xs md:text-sm">{step.description}</p>
 
                 <div className="mt-auto pt-8">
                     <div className="h-0.5 w-full bg-neutral-800 rounded-full overflow-hidden">
@@ -212,6 +213,7 @@ const ProcessSection: React.FC = () => {
     const [paddingStart, setPaddingStart] = useState(200);
     const [cardWidth, setCardWidth] = useState(CARD_WIDTH);
     const [gapWidth, setGapWidth] = useState(GAP_WIDTH);
+    const [ctaWidth, setCtaWidth] = useState(FINAL_CTA_WIDTH);
 
     /*
      * Mapeamento manual do progresso:
@@ -241,14 +243,17 @@ const ProcessSection: React.FC = () => {
             setPaddingStart(260); // Desktop Large
             setCardWidth(450);
             setGapWidth(300);
+            setCtaWidth(600);
         } else if (width >= 768) {
             setPaddingStart(80);  // Tablet
             setCardWidth(400);
             setGapWidth(150);
+            setCtaWidth(450);
         } else {
-            setPaddingStart(32);  // Mobile (px-8 approx)
-            setCardWidth(window.innerWidth - 64); // Full width minus padding (32*2)
-            setGapWidth(120);
+            setPaddingStart(16);  // Mobile
+            setCardWidth(window.innerWidth - 40); // Full width minus padding (20*2)
+            setGapWidth(24);
+            setCtaWidth(Math.min(300, window.innerWidth - 40));
         }
         updatePosition();
     };
@@ -289,7 +294,7 @@ const ProcessSection: React.FC = () => {
         const endPadding = paddingStart / 4;
 
         // Largura total REAL do conteúdo (incluindo o spacer final)
-        const totalWidth = paddingStart + (steps.length * currentBlockWidth) + FINAL_CTA_WIDTH + endPadding;
+        const totalWidth = paddingStart + (steps.length * currentBlockWidth) + ctaWidth + endPadding;
 
         const lStart = positions[0];
         const lEnd = positions[positions.length - 1];
@@ -300,11 +305,11 @@ const ProcessSection: React.FC = () => {
             lineStartX: lStart,
             lineTotalLength: lEnd - lStart
         };
-    }, [paddingStart, viewportWidth, cardWidth, gapWidth]); // Dependências atualizadas
+    }, [paddingStart, viewportWidth, cardWidth, gapWidth, ctaWidth]); // Dependências atualizadas
 
     // Mobile: scroll stops when CTA is centered on screen.
     // Desktop: scroll stops when right edge of content hits right edge of screen.
-    const ctaCenterX = paddingStart + (steps.length * currentBlockWidth) + FINAL_CTA_WIDTH / 2;
+    const ctaCenterX = paddingStart + (steps.length * currentBlockWidth) + ctaWidth / 2;
     const maxScroll = viewportWidth < 1024
         ? Math.max(0, ctaCenterX - viewportWidth / 2)
         : Math.max(0, totalContentWidth - viewportWidth);
@@ -370,6 +375,7 @@ const ProcessSection: React.FC = () => {
                                                 step={step}
                                                 scrollYProgress={scrollYProgress}
                                                 threshold={relativeThreshold}
+                                                dynamicWidth={cardWidth}
                                             />
                                         </div>
                                     </div>
@@ -378,14 +384,14 @@ const ProcessSection: React.FC = () => {
                         </div>
 
                         {/* CTA Final */}
-                        <div style={{ width: FINAL_CTA_WIDTH }} className="shrink-0 flex flex-col items-center justify-center text-center relative z-20">
+                        <div style={{ width: ctaWidth }} className="shrink-0 flex flex-col items-center justify-center text-center relative z-20">
                             <div className="relative">
                                 <div className="absolute inset-0 bg-yellow-400/20 blur-3xl rounded-full" />
                                 <div className="relative w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(250,204,21,0.4)] mb-12">
                                     <Zap className="w-12 h-12 text-black fill-black" />
                                 </div>
                             </div>
-                            <h3 className="text-7xl font-black text-white tracking-tighter leading-none mb-8">Vamos<br />Começar?</h3>
+                            <h3 className="text-4xl md:text-5xl lg:text-7xl font-black text-white tracking-tighter leading-none mb-6 md:mb-8">Vamos<br />Começar?</h3>
                             <GoldButton whatsappMessage="Olá! Vi sua Metodologia e quero iniciar um projeto.">
                                 Solicitar Projeto
                             </GoldButton>

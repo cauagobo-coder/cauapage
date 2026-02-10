@@ -395,8 +395,8 @@ body {
   background-position: center;
   background-repeat: no-repeat;
 
-  /* ESTADO INICIAL (MEGA ZOOM 4.0x) */
-  transform: scale(4.0);
+  /* ESTADO INICIAL — Responsivo por device */
+  transform: scale(2.0);
   filter: brightness(0.2);
   /* Pivot top center for zoom */
   transform-origin: center top;
@@ -404,6 +404,20 @@ body {
   /* Transição de revelação */
   transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), filter 2.5s ease-out;
   will-change: transform, filter;
+}
+
+/* Tablet: zoom moderado */
+@media (min-width: 768px) {
+  #main-content {
+    transform: scale(3.0);
+  }
+}
+
+/* Desktop: zoom completo */
+@media (min-width: 1024px) {
+  #main-content {
+    transform: scale(4.0);
+  }
 }
 
 .loaded #main-content {
