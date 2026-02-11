@@ -141,7 +141,7 @@ const HeroSection = () => {
                     playsInline
                     disablePictureInPicture
                     preload="auto"
-                    className="w-full h-full object-cover object-[center_20%] lg:object-right lg:object-center"
+                    className="w-full h-full object-cover object-center lg:object-right scale-[1.25] -translate-y-[25%] lg:scale-100 lg:translate-y-0"
                     style={{ pointerEvents: 'none' }}
                 >
                     <source src={videoSource.webm} type="video/webm" />
