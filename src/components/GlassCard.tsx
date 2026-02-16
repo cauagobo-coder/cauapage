@@ -53,7 +53,8 @@ const GlassCard = ({ children, className = '', delay = 0 }: GlassCardProps) => {
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? 'translateY(0)' : 'translateY(12px)',
                 transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
-                willChange: 'opacity, transform',
+                // Optimization: remove will-change after animation to free up GPU memory
+                willChange: isVisible ? 'auto' : 'opacity, transform',
             }}
         >
             {/* Efeito de brilho suave no topo (Spotlight) */}
