@@ -11,13 +11,7 @@ const FinalCTASection: React.FC = () => {
     return (
         <section className="py-32 relative bg-black overflow-hidden flex items-center justify-center">
             {/* Background Glow */}
-            {/* Background Glow - Optimized: Radial Gradient instead of Box Shadow/Blur for 0 GPU cost */}
-            <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
-                style={{
-                    background: 'radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, rgba(234, 179, 8, 0.05) 40%, transparent 70%)'
-                }}
-            />
+
 
             <div className="container mx-auto px-6 relative z-10 text-center">
                 <motion.div
