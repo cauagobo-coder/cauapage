@@ -22,6 +22,7 @@ const HeroSection = () => {
     const base = useVideoBase();
     const videoRef = useRef<HTMLVideoElement>(null);
     const sourceRef = useRef<HTMLSourceElement>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const play = useCallback(() => {
         const v = videoRef.current;
@@ -35,10 +36,20 @@ const HeroSection = () => {
         const v = videoRef.current;
         const src = sourceRef.current;
         if (!v || !src) return;
+        setIsPlaying(false);
         src.src = `/videos/${base}.mp4`;
         v.load();
         play();
     }, [base, play]);
+
+    // Detecta quando o vídeo de fato começa a tocar
+    useEffect(() => {
+        const v = videoRef.current;
+        if (!v) return;
+        const onPlaying = () => setIsPlaying(true);
+        v.addEventListener('playing', onPlaying);
+        return () => v.removeEventListener('playing', onPlaying);
+    }, []);
 
     // Força play na montagem e em qualquer toque
     useEffect(() => {
@@ -66,8 +77,10 @@ const HeroSection = () => {
             id="hero"
             className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16"
         >
-            {/* Video Background */}
-            <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+            {/* Video Background — opacity-0 até começar a tocar, esconde ícone de play nativo do iOS */}
+            <div
+                className={`absolute inset-0 w-full h-full z-0 pointer-events-none transition-opacity duration-700 ${isPlaying ? 'opacity-100' : 'opacity-0'}`}
+            >
                 <video
                     ref={videoRef}
                     autoPlay
