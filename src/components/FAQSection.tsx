@@ -56,7 +56,7 @@ const FAQSection = () => {
                             {faqs.map((faq, index) => (
                                 <GlassCard
                                     key={index}
-                                    className={`transition-all duration-300 ${openIndex === index ? 'border-yellow-500/30 bg-white/10' : 'hover:bg-white/5'}`}
+                                    className={`transition-colors duration-300 ${openIndex === index ? 'border-yellow-500/30 bg-white/10' : 'hover:bg-white/5'}`}
                                 >
                                     <button
                                         onClick={() => setOpenIndex(openIndex === index ? null : index)}

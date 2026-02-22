@@ -139,7 +139,9 @@ const HeroSection = () => {
                     loop
                     muted
                     playsInline
+                    controls={false}
                     disablePictureInPicture
+                    disableRemotePlayback
                     preload="auto"
                     className="w-full h-full object-cover object-center lg:object-right scale-[1.25] -translate-y-[25%] lg:scale-100 lg:translate-y-0"
                     style={{ pointerEvents: 'none' }}

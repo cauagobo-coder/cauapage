@@ -44,7 +44,7 @@ const GlassCard = ({ children, className = '', delay = 0 }: GlassCardProps) => {
                 border border-white/[0.05]
                 rounded-2xl
                 hover:bg-white/[0.05] hover:border-yellow-500/20 
-                transition-all duration-500
+                transition-colors duration-500
                 shadow-2xl shadow-black/50
                 p-6
                 ${className}
