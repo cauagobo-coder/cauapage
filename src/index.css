@@ -374,15 +374,30 @@ body {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  background-color: #050505;
+  /* transparent: vídeo fixed atrás aparece no hero */
+  background-color: transparent;
 
-  /* ESTADO INICIAL — Mobile: lighter zoom, no bg image (hero video covers it) */
+  /* ESTADO INICIAL — Mobile: lighter zoom */
   transform: scale(1.5);
   filter: brightness(0.5);
   transform-origin: center top;
 
   transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), filter 1.5s ease-out;
   will-change: transform, filter;
+}
+
+/* Seções abaixo do hero: fundo preto sólido para cobrir o vídeo */
+#sobre,
+#servicos,
+#projetos,
+#processo,
+#diferenciais,
+#faq,
+#cta,
+footer {
+  background-color: #050505;
+  position: relative;
+  z-index: 1;
 }
 
 /* Tablet: zoom moderado + bg image */
@@ -567,11 +582,12 @@ body {
 }
 
 @layer base {
+
   /* GLOBAL VIDEO RESET - Applies everywhere to kill that play button */
   video::-webkit-media-controls {
     display: none !important;
   }
-  
+
   video::-webkit-media-controls-start-playback-button {
     display: none !important;
     -webkit-appearance: none;

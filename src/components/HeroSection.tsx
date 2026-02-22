@@ -1,90 +1,17 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
 import GoldButton, { CyberButton } from './GoldButton';
 import Container from './Container';
 
-const useVideoBase = () => {
-    const [base, setBase] = useState('hero-desktop');
-    useEffect(() => {
-        const update = () => {
-            const w = window.innerWidth;
-            if (w < 768) setBase('hero-mobile');
-            else if (w < 1024) setBase('hero-tablet');
-            else setBase('hero-desktop');
-        };
-        update();
-        window.addEventListener('resize', update);
-        return () => window.removeEventListener('resize', update);
-    }, []);
-    return base;
-};
-
+/**
+ * HeroSection — Apenas o conteúdo de texto/botões da seção hero.
+ * O vídeo de fundo foi movido para HeroVideoBackground no App.tsx,
+ * para ficary fora do #main-content que tem transform:scale durante o preloader.
+ */
 const HeroSection = () => {
-    const base = useVideoBase();
-    const sectionRef = useRef<HTMLElement>(null);
-    const videoRef = useRef<HTMLVideoElement>(null);
-    const sourceRef = useRef<HTMLSourceElement>(null);
-
-    const play = useCallback(() => {
-        const v = videoRef.current;
-        if (!v) return;
-        v.muted = true;
-        v.play().catch(() => {/* silencioso */ });
-    }, []);
-
-    // Troca a source SEM recriar o elemento <video> — preserva permissão de autoplay no iOS
-    useEffect(() => {
-        const v = videoRef.current;
-        const src = sourceRef.current;
-        if (!v || !src) return;
-        src.src = `/videos/${base}.mp4`;
-        v.load();
-        play();
-    }, [base, play]);
-
-    // Na montagem e a qualquer toque/scroll: força o play
-    useEffect(() => {
-        play();
-        const retry = () => play();
-        const onVisibility = () => {
-            if (document.visibilityState === 'visible') play();
-        };
-        document.addEventListener('touchstart', retry, { passive: true });
-        document.addEventListener('touchend', retry, { passive: true });
-        document.addEventListener('scroll', retry, { passive: true, once: true });
-        document.addEventListener('visibilitychange', onVisibility);
-        return () => {
-            document.removeEventListener('touchstart', retry);
-            document.removeEventListener('touchend', retry);
-            document.removeEventListener('scroll', retry);
-            document.removeEventListener('visibilitychange', onVisibility);
-        };
-    }, [play]);
-
     return (
         <section
-            ref={sectionRef}
             id="hero"
-            className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16"
+            className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative pb-6 lg:pt-24 lg:pb-16"
         >
-            {/* Video Background — NUNCA recriar este elemento: iOS perde permissão de autoplay */}
-            <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-                <video
-                    ref={videoRef}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    controls={false}
-                    disablePictureInPicture
-                    disableRemotePlayback
-                    className="w-full h-full object-cover object-center lg:object-right scale-[1.25] -translate-y-[25%] lg:scale-100 lg:translate-y-0"
-                    style={{ pointerEvents: 'none' }}
-                >
-                    <source ref={sourceRef} src={`/videos/${base}.mp4`} type="video/mp4" />
-                </video>
-            </div>
-
             {/* Fade para legibilidade do texto no mobile */}
             <div className="absolute inset-x-0 bottom-0 h-[60%] z-[1] bg-gradient-to-t from-black/80 via-black/40 to-transparent lg:hidden" />
 
