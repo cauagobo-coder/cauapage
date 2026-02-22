@@ -46,6 +46,7 @@ const HeroSection = () => {
                     style={{ pointerEvents: 'none' }}
                 >
                     <source src={videoSource.webm} type="video/webm" />
+                    <source src={videoSource.webm.replace('.webm', '.mp4')} type="video/mp4" />
                     Seu navegador não suporta vídeo.
                 </video>
             </div>
