@@ -34,6 +34,10 @@ const HeroSection = () => {
         const video = videoRef.current;
         if (!video) return;
         video.muted = true;
+
+        // Always ensure playsInline is explicitly true when forcing play
+        video.playsInline = true;
+
         const promise = video.play();
         if (promise !== undefined) {
             promise.then(() => {
@@ -42,6 +46,14 @@ const HeroSection = () => {
         }
     }, []);
 
+    // When the video source changes (e.g. desktop to mobile), we must reload the video natively
+    useEffect(() => {
+        const video = videoRef.current;
+        if (video) {
+            video.load();
+            forcePlay();
+        }
+    }, [videoSource.webm, forcePlay]);
 
     // Main effect: mount + visibility observer + user interaction fallback
     useEffect(() => {
@@ -126,15 +138,14 @@ const HeroSection = () => {
             video.removeEventListener('canplay', onCanPlay);
             observer?.disconnect();
         };
-    }, [videoSource.key, forcePlay]);
+    }, [forcePlay]);
 
     return (
         <section ref={sectionRef} id="hero" className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
             {/* Video Background */}
-            <div className="absolute inset-0 w-full h-full z-0">
+            <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
                 <video
                     ref={videoRef}
-                    key={videoSource.key}
                     autoPlay
                     loop
                     muted
