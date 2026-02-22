@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import GoldButton, { CyberButton } from './GoldButton';
 import Container from './Container';
 
+/** Detecta iOS/iPadOS via user agent */
+const isIOS = () => {
+    if (typeof navigator === 'undefined') return false;
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+};
+
 const useVideoSource = () => {
     const [base, setBase] = useState('hero-desktop');
 
@@ -19,6 +26,8 @@ const useVideoSource = () => {
 
     return {
         webm: `/videos/${base}.webm`,
+        mp4: `/videos/${base}.mp4`,
+        poster: `/videos/${base}-poster.jpg`,
         key: base,
     };
 };
@@ -27,6 +36,33 @@ const HeroSection = () => {
     const videoSource = useVideoSource();
     const sectionRef = useRef<HTMLElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [ios, setIos] = useState(false);
+
+    useEffect(() => {
+        setIos(isIOS());
+    }, []);
+
+    // Em iOS e não tem mp4 disponível, apenas força o play quando o usuário toca
+    useEffect(() => {
+        if (!ios) return;
+        const video = videoRef.current;
+        if (!video) return;
+
+        const tryPlay = () => {
+            video.muted = true;
+            video.play().catch(() => {/* silencioso */ });
+        };
+
+        // Tenta imediatamente e ao primeiro toque
+        tryPlay();
+        document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
+        document.addEventListener('touchend', tryPlay, { once: true, passive: true });
+
+        return () => {
+            document.removeEventListener('touchstart', tryPlay);
+            document.removeEventListener('touchend', tryPlay);
+        };
+    }, [ios, videoSource.key]);
 
     return (
         <section ref={sectionRef} id="hero" className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
@@ -42,11 +78,13 @@ const HeroSection = () => {
                     controls={false}
                     disablePictureInPicture
                     disableRemotePlayback
+                    preload={ios ? 'auto' : 'auto'}
                     className="w-full h-full object-cover object-center lg:object-right scale-[1.25] -translate-y-[25%] lg:scale-100 lg:translate-y-0"
                     style={{ pointerEvents: 'none' }}
                 >
+                    {/* MP4 sempre primeiro — único formato que iOS Safari garante autoplay */}
+                    <source src={videoSource.mp4} type="video/mp4" />
                     <source src={videoSource.webm} type="video/webm" />
-                    <source src={videoSource.webm.replace('.webm', '.mp4')} type="video/mp4" />
                     Seu navegador não suporta vídeo.
                 </video>
             </div>
@@ -85,7 +123,6 @@ const HeroSection = () => {
                             </h2>
                             <div className="scan-line delay-sync-2"></div>
                         </div>
-
 
                         {/* Buttons */}
                         <div className="scan-container inline-block w-max">
