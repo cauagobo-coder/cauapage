@@ -101,7 +101,7 @@ const HeroVideoBackground = () => {
                 controls={false}
                 disablePictureInPicture
                 disableRemotePlayback
-                className="w-full h-full object-cover object-center lg:object-right"
+                className="w-full h-full object-cover object-center lg:object-right scale-[1.25] -translate-y-[25%] lg:scale-100 lg:translate-y-0"
                 style={{ pointerEvents: 'none' }}
             >
                 <source ref={sourceRef} src={`/videos/${base}.mp4`} type="video/mp4" />
