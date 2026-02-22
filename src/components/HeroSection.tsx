@@ -1,17 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import GoldButton, { CyberButton } from './GoldButton';
 import Container from './Container';
 
-/** Detecta iOS/iPadOS via user agent */
-const isIOS = () => {
-    if (typeof navigator === 'undefined') return false;
-    return /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-};
-
-const useVideoSource = () => {
+const useVideoBase = () => {
     const [base, setBase] = useState('hero-desktop');
-
     useEffect(() => {
         const update = () => {
             const w = window.innerWidth;
@@ -23,73 +15,77 @@ const useVideoSource = () => {
         window.addEventListener('resize', update);
         return () => window.removeEventListener('resize', update);
     }, []);
-
-    return {
-        webm: `/videos/${base}.webm`,
-        mp4: `/videos/${base}.mp4`,
-        poster: `/videos/${base}-poster.jpg`,
-        key: base,
-    };
+    return base;
 };
 
 const HeroSection = () => {
-    const videoSource = useVideoSource();
+    const base = useVideoBase();
     const sectionRef = useRef<HTMLElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
-    const [ios, setIos] = useState(false);
+    const sourceRef = useRef<HTMLSourceElement>(null);
 
-    useEffect(() => {
-        setIos(isIOS());
+    const play = useCallback(() => {
+        const v = videoRef.current;
+        if (!v) return;
+        v.muted = true;
+        v.play().catch(() => {/* silencioso */ });
     }, []);
 
-    // Em iOS e não tem mp4 disponível, apenas força o play quando o usuário toca
+    // Troca a source SEM recriar o elemento <video> — preserva permissão de autoplay no iOS
     useEffect(() => {
-        if (!ios) return;
-        const video = videoRef.current;
-        if (!video) return;
+        const v = videoRef.current;
+        const src = sourceRef.current;
+        if (!v || !src) return;
+        src.src = `/videos/${base}.mp4`;
+        v.load();
+        play();
+    }, [base, play]);
 
-        const tryPlay = () => {
-            video.muted = true;
-            video.play().catch(() => {/* silencioso */ });
+    // Na montagem e a qualquer toque/scroll: força o play
+    useEffect(() => {
+        play();
+        const retry = () => play();
+        const onVisibility = () => {
+            if (document.visibilityState === 'visible') play();
         };
-
-        // Tenta imediatamente e ao primeiro toque
-        tryPlay();
-        document.addEventListener('touchstart', tryPlay, { once: true, passive: true });
-        document.addEventListener('touchend', tryPlay, { once: true, passive: true });
-
+        document.addEventListener('touchstart', retry, { passive: true });
+        document.addEventListener('touchend', retry, { passive: true });
+        document.addEventListener('scroll', retry, { passive: true, once: true });
+        document.addEventListener('visibilitychange', onVisibility);
         return () => {
-            document.removeEventListener('touchstart', tryPlay);
-            document.removeEventListener('touchend', tryPlay);
+            document.removeEventListener('touchstart', retry);
+            document.removeEventListener('touchend', retry);
+            document.removeEventListener('scroll', retry);
+            document.removeEventListener('visibilitychange', onVisibility);
         };
-    }, [ios, videoSource.key]);
+    }, [play]);
 
     return (
-        <section ref={sectionRef} id="hero" className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16">
-            {/* Video Background */}
+        <section
+            ref={sectionRef}
+            id="hero"
+            className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16"
+        >
+            {/* Video Background — NUNCA recriar este elemento: iOS perde permissão de autoplay */}
             <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
                 <video
                     ref={videoRef}
-                    key={videoSource.key}
                     autoPlay
                     loop
                     muted
                     playsInline
+                    preload="auto"
                     controls={false}
                     disablePictureInPicture
                     disableRemotePlayback
-                    preload={ios ? 'auto' : 'auto'}
                     className="w-full h-full object-cover object-center lg:object-right scale-[1.25] -translate-y-[25%] lg:scale-100 lg:translate-y-0"
                     style={{ pointerEvents: 'none' }}
                 >
-                    {/* MP4 sempre primeiro — único formato que iOS Safari garante autoplay */}
-                    <source src={videoSource.mp4} type="video/mp4" />
-                    <source src={videoSource.webm} type="video/webm" />
-                    Seu navegador não suporta vídeo.
+                    <source ref={sourceRef} src={`/videos/${base}.mp4`} type="video/mp4" />
                 </video>
             </div>
 
-            {/* Subtle bottom fade only — for text readability over video */}
+            {/* Fade para legibilidade do texto no mobile */}
             <div className="absolute inset-x-0 bottom-0 h-[60%] z-[1] bg-gradient-to-t from-black/80 via-black/40 to-transparent lg:hidden" />
 
             <Container className="relative z-10">
@@ -128,17 +124,12 @@ const HeroSection = () => {
                         <div className="scan-container inline-block w-max">
                             <div className="scan-content delay-sync-3">
                                 <div className="flex flex-col sm:flex-row items-center gap-5">
-                                    <GoldButton
-                                        whatsappMessage="Olá! Vim pelo seu site e gostaria de solicitar um orçamento."
-                                    >
+                                    <GoldButton whatsappMessage="Olá! Vim pelo seu site e gostaria de solicitar um orçamento.">
                                         Solicitar Orçamento
                                     </GoldButton>
-
-                                    <CyberButton
-                                        onClick={() => {
-                                            document.getElementById('servicos')?.scrollIntoView({ behavior: 'smooth' });
-                                        }}
-                                    >
+                                    <CyberButton onClick={() => {
+                                        document.getElementById('servicos')?.scrollIntoView({ behavior: 'smooth' });
+                                    }}>
                                         Ver Serviços
                                     </CyberButton>
                                 </div>
