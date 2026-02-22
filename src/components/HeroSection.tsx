@@ -22,7 +22,6 @@ const HeroSection = () => {
     const base = useVideoBase();
     const videoRef = useRef<HTMLVideoElement>(null);
     const sourceRef = useRef<HTMLSourceElement>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
 
     const play = useCallback(() => {
         const v = videoRef.current;
@@ -31,28 +30,20 @@ const HeroSection = () => {
         v.play().catch(() => {/* silencioso */ });
     }, []);
 
-    // Troca a source SEM recriar o elemento <video>
+    // Troca a source apenas no desktop/tablet sem recriar o elemento <video>
     useEffect(() => {
+        if (base === 'hero-mobile') return;
         const v = videoRef.current;
         const src = sourceRef.current;
         if (!v || !src) return;
-        setIsPlaying(false);
         src.src = `/videos/${base}.mp4`;
         v.load();
         play();
     }, [base, play]);
 
-    // Detecta quando o vídeo de fato começa a tocar
+    // Força play na montagem e em qualquer toque (para garantir no tablet/desktop)
     useEffect(() => {
-        const v = videoRef.current;
-        if (!v) return;
-        const onPlaying = () => setIsPlaying(true);
-        v.addEventListener('playing', onPlaying);
-        return () => v.removeEventListener('playing', onPlaying);
-    }, []);
-
-    // Força play na montagem e em qualquer toque
-    useEffect(() => {
+        if (base === 'hero-mobile') return;
         play();
         const retry = () => play();
         const onVisibility = () => {
@@ -70,32 +61,38 @@ const HeroSection = () => {
             document.removeEventListener('touchend', retry);
             document.removeEventListener('visibilitychange', onVisibility);
         };
-    }, [play]);
+    }, [play, base]);
 
     return (
         <section
             id="hero"
             className="h-[100svh] lg:min-h-screen flex flex-col justify-end lg:justify-center lg:items-center relative overflow-hidden pb-6 lg:pt-24 lg:pb-16"
         >
-            {/* Video Background — opacity-0 até começar a tocar, esconde ícone de play nativo do iOS */}
-            <div
-                className={`absolute inset-0 w-full h-full z-0 pointer-events-none transition-opacity duration-700 ${isPlaying ? 'opacity-100' : 'opacity-0'}`}
-            >
-                <video
-                    ref={videoRef}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    preload="auto"
-                    controls={false}
-                    disablePictureInPicture
-                    disableRemotePlayback
-                    className="w-full h-full object-cover object-center lg:object-right scale-[1.25] -translate-y-[25%] lg:scale-100 lg:translate-y-0"
-                    style={{ pointerEvents: 'none' }}
-                >
-                    <source ref={sourceRef} src={`/videos/${base}.mp4`} type="video/mp4" />
-                </video>
+            <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+                {base === 'hero-mobile' ? (
+                    <img
+                        src="/videos/hero-mobile.gif"
+                        alt="Lumina Derma Experience - Background"
+                        className="w-full h-full object-cover object-center scale-[1.25] -translate-y-[25%]"
+                        style={{ pointerEvents: 'none' }}
+                    />
+                ) : (
+                    <video
+                        ref={videoRef}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="auto"
+                        controls={false}
+                        disablePictureInPicture
+                        disableRemotePlayback
+                        className="w-full h-full object-cover object-center lg:object-right lg:scale-100 lg:translate-y-0"
+                        style={{ pointerEvents: 'none' }}
+                    >
+                        <source ref={sourceRef} src={`/videos/${base}.mp4`} type="video/mp4" />
+                    </video>
+                )}
             </div>
 
             {/* Fade para legibilidade do texto no mobile */}
